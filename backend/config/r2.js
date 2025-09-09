@@ -2,6 +2,7 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand, HeadObjectCommand } fr
 import multer from 'multer';
 import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
+import sharp from 'sharp';
 
 dotenv.config();
 
@@ -209,27 +210,86 @@ const uploadToR2 = async (file, folder = 'pothole-reports', retries = 3) => {
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      // Generate a unique filename
+      // Generate a unique base filename
       const timestamp = Date.now();
       const safeOriginalName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const fileExtension = safeOriginalName.split('.').pop();
+      const originalExt = (safeOriginalName.split('.').pop() || '').toLowerCase();
       const uniqueId = uuidv4();
-      const fileName = `${folder}/${timestamp}-${uniqueId}.${fileExtension}`;
 
-      // Determine content type
-      const contentType = file.mimetype || 'application/octet-stream';
+      // Optimize images before upload (rotate, resize, compress)
+      let uploadBody = file.buffer;
+      let contentType = file.mimetype || 'application/octet-stream';
+      let finalExt = originalExt;
+      let optimizationMeta = {};
+
+      try {
+        const isImage = contentType.startsWith('image/');
+        const isGif = contentType === 'image/gif' || originalExt === 'gif';
+        if (isImage && !isGif) {
+          // Build base pipeline
+          const base = sharp(file.buffer, { failOn: 'none' })
+            .rotate()
+            .resize({ width: 2048, height: 2048, fit: 'inside', withoutEnlargement: true });
+
+          const meta = await base.metadata();
+          const candidates = [];
+
+          // Same-format candidate when JPEG/PNG
+          if (contentType === 'image/jpeg' || originalExt === 'jpg' || originalExt === 'jpeg') {
+            const jpegBuf = await base.clone().jpeg({ quality: 82, mozjpeg: true }).toBuffer();
+            candidates.push({ name: 'same-jpeg', buf: jpegBuf, ext: 'jpg', mime: 'image/jpeg' });
+          } else if (contentType === 'image/png' || originalExt === 'png') {
+            const pngBuf = await base.clone().png({ compressionLevel: 9, palette: true }).toBuffer();
+            candidates.push({ name: 'same-png', buf: pngBuf, ext: 'png', mime: 'image/png' });
+          }
+
+          // WebP candidate(s)
+          if (meta && meta.hasAlpha) {
+            const webpLossless = await base.clone().webp({ lossless: true, effort: 4 }).toBuffer();
+            candidates.push({ name: 'webp-lossless', buf: webpLossless, ext: 'webp', mime: 'image/webp' });
+          } else {
+            const webpLossy = await base.clone().webp({ quality: 80, effort: 4 }).toBuffer();
+            candidates.push({ name: 'webp-lossy', buf: webpLossy, ext: 'webp', mime: 'image/webp' });
+          }
+
+          // Choose smallest candidate that is smaller than original
+          const originalSize = file.buffer.length;
+          let best = null;
+          for (const c of candidates) {
+            const size = c.buf.length;
+            if (!best || size < best.size) best = { ...c, size };
+          }
+          if (best && best.size < originalSize) {
+            uploadBody = best.buf;
+            contentType = best.mime;
+            finalExt = best.ext;
+            optimizationMeta = {
+              'optimized': 'true',
+              'optimized-variant': best.name,
+              'original-size': originalSize.toString(),
+              'new-size': best.size.toString(),
+            };
+          }
+        }
+      } catch (optError) {
+        // If optimization fails, fall back to original buffer
+        console.warn('Image optimization failed, using original file:', optError.message);
+      }
+
+      const fileName = `${folder}/${timestamp}-${uniqueId}.${finalExt}`;
 
       // Upload to R2
       const uploadCommand = new PutObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME,
         Key: fileName,
-        Body: file.buffer,
+        Body: uploadBody,
         ContentType: contentType,
         CacheControl: 'public, max-age=31536000', // 1 year cache
         Metadata: {
           'original-name': file.originalname,
           'upload-timestamp': timestamp.toString(),
-          'file-size': file.buffer.length.toString()
+          'file-size': uploadBody.length.toString(),
+          ...optimizationMeta
         }
       });
 
@@ -247,7 +307,7 @@ const uploadToR2 = async (file, folder = 'pothole-reports', retries = 3) => {
         url: publicUrl,
         fileId: fileName, // Use the full path as fileId for consistency
         fileName: fileName,
-        size: file.size || file.buffer?.length || 0,
+        size: uploadBody.length,
         contentType: contentType
       };
       
