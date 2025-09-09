@@ -13,8 +13,30 @@
  * - Provides fallback mechanisms for older browsers
  */
 
-// Simple encryption key (in production, this should be more sophisticated)
-const ENCRYPTION_KEY = 'pothole-app-secure-key-2024';
+// Key derivation: prefer env-provided key, else per-session random key
+const ENV = (typeof import.meta !== 'undefined' && import.meta && import.meta.env) ? import.meta.env : {};
+const ENV_KEY = ENV?.VITE_SECURE_STORAGE_KEY;
+
+const getOrCreateSessionKey = () => {
+  try {
+    const keyName = '__secure_storage_ephemeral_key';
+    const existing = sessionStorage.getItem(keyName);
+    if (existing) return existing;
+    const bytes = new Uint8Array(32);
+    (window.crypto || window.msCrypto).getRandomValues(bytes);
+    const b64 = btoa(String.fromCharCode(...bytes));
+    sessionStorage.setItem(keyName, b64);
+    return b64;
+  } catch {
+    // Final fallback to a non-constant, time-based ephemeral key string
+    return `ephemeral-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+};
+
+const getPasswordSource = () => {
+  if (ENV_KEY && String(ENV_KEY).length >= 32) return String(ENV_KEY);
+  return getOrCreateSessionKey();
+};
 
 /**
  * Encryption function using Web Crypto API for better security
@@ -27,7 +49,7 @@ const encrypt = (text) => {
       // Return a Promise for async encryption
       return (async () => {
         const encoder = new TextEncoder();
-        const keyData = encoder.encode(ENCRYPTION_KEY);
+        const keyData = encoder.encode(getPasswordSource());
         
         // Create a key using PBKDF2
         const baseKey = await window.crypto.subtle.importKey(
@@ -37,15 +59,14 @@ const encrypt = (text) => {
           false,
           ['deriveBits', 'deriveKey']
         );
-        
-        // Generate salt (in production, use a random salt and store it)
-        const salt = encoder.encode('pothole-app-salt-2024');
+        // Generate a random salt per item
+        const salt = window.crypto.getRandomValues(new Uint8Array(16));
         
         // Derive a key from the password
         const key = await window.crypto.subtle.deriveKey(
           {
             name: 'PBKDF2',
-            salt: salt,
+            salt,
             iterations: 100000,
             hash: 'SHA-256'
           },
@@ -62,16 +83,18 @@ const encrypt = (text) => {
         const encrypted = await window.crypto.subtle.encrypt(
           {
             name: 'AES-GCM',
-            iv: iv
+            iv
           },
           key,
           encoder.encode(text)
         );
         
-        // Combine IV and encrypted data
-        const combined = new Uint8Array(iv.length + encrypted.byteLength);
-        combined.set(iv, 0);
-        combined.set(new Uint8Array(encrypted), iv.length);
+        // Combine SALT + IV + encrypted data
+        const cipherBytes = new Uint8Array(encrypted);
+        const combined = new Uint8Array(salt.length + iv.length + cipherBytes.length);
+        combined.set(salt, 0);
+        combined.set(iv, salt.length);
+        combined.set(cipherBytes, salt.length + iv.length);
         
         // Convert to base64
         return btoa(String.fromCharCode(...combined));
@@ -79,7 +102,8 @@ const encrypt = (text) => {
     } else {
       // For older browsers, use synchronous obfuscation
       const obfuscated = text.split('').map((char, index) => {
-        const keyChar = ENCRYPTION_KEY.charCodeAt(index % ENCRYPTION_KEY.length);
+        const pwd = getPasswordSource();
+        const keyChar = pwd.charCodeAt(index % pwd.length);
         return String.fromCharCode(char.charCodeAt(0) ^ keyChar);
       }).join('');
       return btoa(encodeURIComponent(obfuscated));
@@ -88,7 +112,8 @@ const encrypt = (text) => {
     console.warn('Encryption failed, using fallback:', error);
     // Fallback to obfuscation for compatibility
     const obfuscated = text.split('').map((char, index) => {
-      const keyChar = ENCRYPTION_KEY.charCodeAt(index % ENCRYPTION_KEY.length);
+      const pwd = getPasswordSource();
+      const keyChar = pwd.charCodeAt(index % pwd.length);
       return String.fromCharCode(char.charCodeAt(0) ^ keyChar);
     }).join('');
     return btoa(encodeURIComponent(obfuscated));
@@ -112,56 +137,77 @@ const decrypt = (encryptedText) => {
             const combined = new Uint8Array(
               atob(encryptedText).split('').map(char => char.charCodeAt(0))
             );
-            
-            // Extract IV and encrypted data
-            const iv = combined.slice(0, 12);
-            const encrypted = combined.slice(12);
-            
-            // Generate the same key
             const encoder = new TextEncoder();
-            const keyData = encoder.encode(ENCRYPTION_KEY);
-            
-            const baseKey = await window.crypto.subtle.importKey(
-              'raw',
-              keyData,
-              'PBKDF2',
-              false,
-              ['deriveBits', 'deriveKey']
-            );
-            
-            const salt = encoder.encode('pothole-app-salt-2024');
-            
-            const key = await window.crypto.subtle.deriveKey(
-              {
-                name: 'PBKDF2',
-                salt: salt,
-                iterations: 100000,
-                hash: 'SHA-256'
-              },
-              baseKey,
-              { name: 'AES-GCM', length: 256 },
-              false,
-              ['encrypt', 'decrypt']
-            );
-            
-            // Decrypt the data
-            const decrypted = await window.crypto.subtle.decrypt(
-              {
-                name: 'AES-GCM',
-                iv: iv
-              },
-              key,
-              encrypted
-            );
-            
-            // Convert back to string
-            const decoder = new TextDecoder();
-            return decoder.decode(decrypted);
+
+            // Attempt new format: SALT(16) + IV(12) + ciphertext
+            const tryModern = async () => {
+              if (combined.length < 28) throw new Error('Not modern format');
+              const salt = combined.slice(0, 16);
+              const iv = combined.slice(16, 28);
+              const encrypted = combined.slice(28);
+
+              const keyData = encoder.encode(getPasswordSource());
+              const baseKey = await window.crypto.subtle.importKey(
+                'raw',
+                keyData,
+                'PBKDF2',
+                false,
+                ['deriveBits', 'deriveKey']
+              );
+              const key = await window.crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+                baseKey,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+              );
+              const decrypted = await window.crypto.subtle.decrypt(
+                { name: 'AES-GCM', iv },
+                key,
+                encrypted
+              );
+              return new TextDecoder().decode(decrypted);
+            };
+
+            // Legacy modern format: IV(12) + ciphertext with static salt
+            const tryLegacyModern = async () => {
+              const iv = combined.slice(0, 12);
+              const encrypted = combined.slice(12);
+              const keyData = encoder.encode(getPasswordSource());
+              const baseKey = await window.crypto.subtle.importKey(
+                'raw',
+                keyData,
+                'PBKDF2',
+                false,
+                ['deriveBits', 'deriveKey']
+              );
+              const legacySalt = encoder.encode('pothole-app-salt-2024');
+              const key = await window.crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt: legacySalt, iterations: 100000, hash: 'SHA-256' },
+                baseKey,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+              );
+              const decrypted = await window.crypto.subtle.decrypt(
+                { name: 'AES-GCM', iv },
+                key,
+                encrypted
+              );
+              return new TextDecoder().decode(decrypted);
+            };
+
+            try {
+              return await tryModern();
+            } catch (_) {
+              return await tryLegacyModern();
+            }
           } catch (cryptoError) {
             // Fall back to legacy decryption
             const decoded = decodeURIComponent(atob(encryptedText));
             const deobfuscated = decoded.split('').map((char, index) => {
-              const keyChar = ENCRYPTION_KEY.charCodeAt(index % ENCRYPTION_KEY.length);
+              const pwd = getPasswordSource();
+              const keyChar = pwd.charCodeAt(index % pwd.length);
               return String.fromCharCode(char.charCodeAt(0) ^ keyChar);
             }).join('');
             return deobfuscated;
@@ -175,7 +221,8 @@ const decrypt = (encryptedText) => {
     // Synchronous decryption for legacy data or older browsers
     const decoded = decodeURIComponent(atob(encryptedText));
     const deobfuscated = decoded.split('').map((char, index) => {
-      const keyChar = ENCRYPTION_KEY.charCodeAt(index % ENCRYPTION_KEY.length);
+      const pwd = getPasswordSource();
+      const keyChar = pwd.charCodeAt(index % pwd.length);
       return String.fromCharCode(char.charCodeAt(0) ^ keyChar);
     }).join('');
     return deobfuscated;

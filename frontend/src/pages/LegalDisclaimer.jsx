@@ -76,7 +76,7 @@ const LegalDisclaimer = () => {
           
           <h2>Contact Information</h2>
           <p>
-            For questions about this disclaimer, please contact us at help.indianpotholes@gmail.com
+            For questions about this disclaimer, please contact us at roshan@empoweredindian.in
           </p>
         </div>
       </div>

@@ -163,7 +163,7 @@ const ContactUs = () => {
               </div>
               <div className="contact-details">
                 <h3>Email</h3>
-                <p>help.indianpotholes@gmail.com</p>
+                <p>roshan@empoweredindian.in</p>
                 <p>For technical support and general inquiries</p>
               </div>
             </div>
@@ -201,19 +201,19 @@ const ContactUs = () => {
             
             <div className="specialized-contact">
               <h3>Technical Support</h3>
-              <p>Email: help.indianpotholes@gmail.com</p>
+              <p>Email: roshan@empoweredindian.in</p>
               <p>For bugs, technical issues, and feature requests</p>
             </div>
             
             <div className="specialized-contact">
               <h3>Privacy & Legal</h3>
-              <p>Email: help.indianpotholes@gmail.com</p>
+              <p>Email: roshan@empoweredindian.in</p>
               <p>For privacy concerns and legal matters</p>
             </div>
             
             <div className="specialized-contact">
               <h3>Press & Media</h3>
-              <p>Email: help.indianpotholes@gmail.com</p>
+              <p>Email: roshan@empoweredindian.in</p>
               <p>For media inquiries and press releases</p>
             </div>
           </div>

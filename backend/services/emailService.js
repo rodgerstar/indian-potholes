@@ -226,7 +226,7 @@ export const sendContactEmail = async ({ name, email, message }) => {
   try {
     const mailOptions = {
       from: `"Pothole Contact Form" <${process.env.EMAIL_USER}>`,
-      to: 'roshanasingh4@gmail.com',
+      to: 'roshan@empoweredindian.in',
       subject: 'New Contact Us Form Submission',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">

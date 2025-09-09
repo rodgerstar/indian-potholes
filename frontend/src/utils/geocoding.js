@@ -6,7 +6,7 @@ export async function reverseGeocode(lat, lng) {
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'pothole-app/1.0 (your-email@example.com)'
+        'User-Agent': 'pothole-app/1.0 (roshan@empoweredindian.in)'
       }
     });
     if (!response.ok) throw new Error('Network response was not ok');

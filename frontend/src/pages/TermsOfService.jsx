@@ -73,7 +73,7 @@ const TermsOfService = () => {
           
           <h2>Contact Information</h2>
           <p>
-            For questions about these terms, please contact us at help.indianpotholes@gmail.com
+            For questions about these terms, please contact us at roshan@empoweredindian.in
           </p>
         </div>
       </div>
