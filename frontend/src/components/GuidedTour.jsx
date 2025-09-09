@@ -260,6 +260,18 @@ const GuidedTour = ({ isOpen, onClose, onComplete }) => {
       }
     }
 
+    // For each valid step with attachTo, wait for element before showing to avoid DOM insert errors
+    validSteps.forEach((step) => {
+      if (step.attachTo && step.attachTo.element) {
+        step.beforeShowPromise = () => waitForElement(step.attachTo.element, 1500).then((el) => {
+          if (!el) {
+            // If element never appears, skip this step gracefully
+            try { tour.next(); } catch (_) { /* no-op */ }
+          }
+        });
+      }
+    });
+
     // If no valid steps (all elements are hidden), show a simplified mobile tour
     if (validSteps.length <= 1 && isMobile) {
       const simplifiedSteps = [

@@ -50,7 +50,7 @@ const LeafletMap = ({
   }, [onClick]);
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || !mapRef.current.isConnected) return;
 
     // Validate center coordinates before initializing map
     let validCenter = center;
@@ -78,6 +78,17 @@ const LeafletMap = ({
     }).addTo(map);
 
     mapInstanceRef.current = map;
+
+    // Ensure proper sizing once the map is in the DOM
+    try {
+      if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(() => {
+          try { map.invalidateSize(false); } catch (_) { /* no-op */ }
+        });
+      } else {
+        setTimeout(() => { try { map.invalidateSize(false); } catch (_) {} }, 0);
+      }
+    } catch (_) { /* no-op */ }
 
     // Get user location if requested
     if (showUserLocation && navigator.geolocation) {
@@ -166,14 +177,16 @@ const LeafletMap = ({
 
   // Update center when center prop changes
   useEffect(() => {
-    if (mapInstanceRef.current && center && Array.isArray(center) && center.length === 2) {
+    if (mapInstanceRef.current && mapInstanceRef.current._loaded && center && Array.isArray(center) && center.length === 2) {
       const [lat, lng] = center;
       // Validate coordinates before setting view
       if (typeof lat === 'number' && typeof lng === 'number' && 
           !isNaN(lat) && !isNaN(lng) && 
           lat >= -90 && lat <= 90 && 
           lng >= -180 && lng <= 180) {
-        mapInstanceRef.current.setView(center, zoom);
+        try {
+          mapInstanceRef.current.setView(center, zoom);
+        } catch (_) { /* no-op */ }
       } else {
         console.warn('Invalid center coordinates provided to LeafletMap:', center);
       }

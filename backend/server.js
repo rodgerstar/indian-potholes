@@ -203,7 +203,8 @@ const corsOptions = {
     'https://indian-potholes-fe.vercel.app',
     'http://localhost:5173',
     'https://localhost:5173',
-    'https://www.indianpotholes.com'
+    'https://www.indianpotholes.com',
+    'https://indianpotholes.com'
   ],
   credentials: true,
   optionsSuccessStatus: 200
@@ -213,10 +214,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(passport.initialize());
 
-// Add request timeout middleware
+// Add request timeout middleware (longer for file uploads)
 app.use((req, res, next) => {
-  req.setTimeout(30000); // 30 seconds timeout
-  res.setTimeout(30000);
+  const isUploadEndpoint = req.path.startsWith('/api/potholes');
+  const timeoutMs = isUploadEndpoint ? 180000 : 30000; // 3 min for uploads, 30s default
+  req.setTimeout(timeoutMs);
+  res.setTimeout(timeoutMs);
   next();
 });
 
@@ -423,6 +426,14 @@ app.use((error, req, res, next) => {
   // Handle specific error types with sanitized messages
   if (error.code === 'LIMIT_FILE_SIZE') {
     errorResponse.message = 'File size too large. Maximum size is 50MB.';
+    return res.status(400).json(errorResponse);
+  }
+  if (error.code === 'LIMIT_FILE_COUNT') {
+    errorResponse.message = 'Too many files. Maximum 5 files allowed.';
+    return res.status(400).json(errorResponse);
+  }
+  if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+    errorResponse.message = 'Unexpected file field in upload';
     return res.status(400).json(errorResponse);
   }
   

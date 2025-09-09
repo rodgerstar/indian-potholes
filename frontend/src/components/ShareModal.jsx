@@ -124,7 +124,11 @@ const ShareModal = ({ isOpen, onClose, pothole }) => {
       link.download = `pothole-report-${pothole._id}.jpg`;
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      if (typeof link.remove === 'function') {
+        link.remove();
+      } else if (link.parentNode) {
+        link.parentNode.removeChild(link);
+      }
       toast.success('Image downloaded successfully!');
     } else {
       toast.error('No image available to download');

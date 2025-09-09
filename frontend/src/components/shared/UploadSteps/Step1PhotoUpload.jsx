@@ -98,11 +98,11 @@ const Step1PhotoUpload = ({ onNext, onGPSFound, formData, setFormData }) => {
               <div className="upload-specs">
                 <div className="spec-item">
                   <RiImageLine className="spec-icon" />
-                  <span>Images: JPEG, PNG, GIF</span>
+                  <span>Images: JPEG, PNG, GIF, WEBP, HEIC/HEIF</span>
                 </div>
                 <div className="spec-item">
                   <RiVideoLine className="spec-icon" />
-                  <span>Videos: MP4, AVI, MOV, WEBM</span>
+                  <span>Videos: MP4, MOV, WEBM, AVI, M4V, MKV, 3GP</span>
                 </div>
                 <div className="spec-item">
                   <span>Max 50MB per file</span>

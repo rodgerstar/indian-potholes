@@ -10,6 +10,11 @@ export async function reverseGeocode(lat, lng) {
       }
     });
     if (!response.ok) throw new Error('Network response was not ok');
+    const ct = response.headers.get('content-type') || '';
+    if (!/application\/json/i.test(ct)) {
+      // Avoid JSON parse errors when upstream serves HTML or text
+      return null;
+    }
     const data = await response.json();
     // Prefer display_name, fallback to address parts
     if (data.display_name) return data.display_name;

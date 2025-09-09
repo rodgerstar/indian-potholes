@@ -89,6 +89,17 @@ window.addEventListener('unhandledrejection', (event) => {
       });
       event?.preventDefault?.();
     }
+
+    // If the rejection reason is a plain object (e.g., { code, data, message }),
+    // capture a normalized Error to avoid "Non-Error" noise while preserving context
+    if (reason && typeof reason === 'object' && !(reason instanceof Error)) {
+      const msg = typeof reason.message === 'string' ? reason.message : 'Promise rejected with non-Error object';
+      Sentry.captureException(new Error(msg), {
+        tags: { rejection_type: 'object' },
+        extra: { originalReason: reason },
+      });
+      event?.preventDefault?.();
+    }
   } catch (_) {
     // no-op
   }

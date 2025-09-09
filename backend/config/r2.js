@@ -55,8 +55,18 @@ const fileSignatures = {
     [0x00, 0x00, 0x00, 0x24, 0x66, 0x74, 0x79, 0x70]  // Another common MP4 variant
   ],
   'video/avi': [0x52, 0x49, 0x46, 0x46],
-  'video/mov': [0x00, 0x00, 0x00, 0x14, 0x66, 0x74, 0x79, 0x70],
+  'video/x-msvideo': [0x52, 0x49, 0x46, 0x46],
+  'video/mov': [0x00, 0x00, 0x00, 0x14, 0x66, 0x74, 0x79, 0x70], // legacy mov MIME sometimes reported
+  'video/quicktime': [0x00, 0x00, 0x00, 0x14, 0x66, 0x74, 0x79, 0x70],
   'video/webm': [0x1A, 0x45, 0xDF, 0xA3],
+  'video/x-matroska': [0x1A, 0x45, 0xDF, 0xA3],
+  'video/x-m4v': [
+    [0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70],
+    [0x00, 0x00, 0x00, 0x20, 0x66, 0x74, 0x79, 0x70]
+  ],
+  'video/3gpp': [
+    [0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70],
+  ],
   'video/hevc': [0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70, 0x68, 0x65, 0x76, 0x63] // HEVC signature
 };
 
@@ -72,8 +82,8 @@ const validateFileSignature = (buffer, expectedMimeType) => {
     return buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF;
   }
   
-  // For MP4 files, check multiple possible signatures
-  if (expectedMimeType === 'video/mp4') {
+  // For MP4-like files (ISO BMFF), check multiple possible signatures
+  if (expectedMimeType === 'video/mp4' || expectedMimeType === 'video/quicktime' || expectedMimeType === 'video/x-m4v' || expectedMimeType === 'video/3gpp') {
     // MP4 files can have different signatures, so we check multiple possibilities
     for (const mp4Signature of signature) {
       let isValid = true;
@@ -104,9 +114,21 @@ const validateFileSignature = (buffer, expectedMimeType) => {
            buffer[6] === 0x79 && buffer[7] === 0x70;
   }
   
-  // For other file types, check the full signature
-  for (let i = 0; i < signature.length; i++) {
-    if (buffer[i] !== signature[i]) return false;
+  // For other file types, signature may be a list or a flat array
+  if (Array.isArray(signature[0])) {
+    // Choose any matching signature pattern
+    for (const sig of signature) {
+      let ok = true;
+      for (let i = 0; i < sig.length; i++) {
+        if (buffer[i] !== sig[i]) { ok = false; break; }
+      }
+      if (ok) return true;
+    }
+    return false;
+  } else {
+    for (let i = 0; i < signature.length; i++) {
+      if (buffer[i] !== signature[i]) return false;
+    }
   }
   return true;
 };
@@ -119,7 +141,7 @@ const fileFilter = (req, file, cb) => {
   }
 
   // Check file type
-  const allowedTypes = /jpeg|jpg|png|gif|webp|heic|heif|mp4|avi|mov|webm|hevc/;
+  const allowedTypes = /jpeg|jpg|png|gif|webp|heic|heif|mp4|avi|mov|webm|hevc|quicktime|x-msvideo|x-m4v|x-matroska|3gpp|mkv|m4v|3gp/;
   const extname = allowedTypes.test(file.originalname.toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
 

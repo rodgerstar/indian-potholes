@@ -70,14 +70,22 @@ router.get('/google', passport.authenticate('google', {
 }));
 
 // Google OAuth callback endpoint
-router.get('/google/callback', passport.authenticate('google', {
-  session: false,
-  failureRedirect: process.env.FRONTEND_URL + '/login?error=google',
-}), (req, res) => {
-  // Generate JWT for the user
-  const token = generateToken(req.user._id);
-  // Redirect to frontend with token as query param
-  res.redirect(`${process.env.FRONTEND_URL}/login?token=${token}`);
+router.get('/google/callback', (req, res, next) => {
+  passport.authenticate('google', { session: false }, (err, user, info) => {
+    if (err || !user) {
+      // Normalize error code for frontend display
+      const code = (err && (err.name || err.message)) || (info && (info.message || info.code)) || 'oauth_error';
+      const param = encodeURIComponent(String(code));
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=${param}`);
+    }
+    try {
+      const token = generateToken(user._id);
+      return res.redirect(`${process.env.FRONTEND_URL}/login?token=${token}`);
+    } catch (e) {
+      const param = encodeURIComponent('token_generation_failed');
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=${param}`);
+    }
+  })(req, res, next);
 });
 
 // @route   POST /api/auth/google

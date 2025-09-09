@@ -92,7 +92,18 @@ const extractGPSFromImage = (file) => {
 const useFileUpload = ({ 
   maxFiles = 5, 
   maxSize = 50 * 1024 * 1024, // 50MB
-  allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'video/mp4', 'video/avi', 'video/mov', 'video/webm'],
+  // Align with backend whitelist in backend/config/r2.js
+  allowedTypes = [
+    // Images
+    'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif',
+    // Videos (common MIME types across browsers)
+    'video/mp4', 'video/webm', 'video/quicktime', // mov (QuickTime)
+    'video/x-msvideo', // avi
+    'video/x-m4v', // m4v
+    'video/x-matroska', // mkv
+    'video/3gpp', // 3gp
+    'video/hevc'
+  ],
   onGPSFound = null 
 } = {}) => {
   

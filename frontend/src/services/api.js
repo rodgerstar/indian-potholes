@@ -64,8 +64,8 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // Add a sensible timeout to surface hung requests
-  timeout: 10000,
+  // Slightly higher default to reduce spurious timeouts on mobile networks
+  timeout: 20000,
   transitional: { clarifyTimeoutError: true },
 });
 

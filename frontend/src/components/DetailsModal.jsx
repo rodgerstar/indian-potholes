@@ -218,7 +218,11 @@ const DetailsModal = ({ isOpen, onClose, report, onAdminCommentUpdate }) => {
       link.download = `pothole-report-${report._id}-${currentMediaIndex + 1}`;
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      if (typeof link.remove === 'function') {
+        link.remove();
+      } else if (link.parentNode) {
+        link.parentNode.removeChild(link);
+      }
     }
   };
 
