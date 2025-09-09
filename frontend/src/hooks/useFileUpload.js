@@ -95,7 +95,7 @@ const useFileUpload = ({
   // Align with backend whitelist in backend/config/r2.js
   allowedTypes = [
     // Images
-    'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif',
+    'image/jpeg', 'image/jpg', 'image/pjpeg', 'image/jfif', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif',
     // Videos (common MIME types across browsers)
     'video/mp4', 'video/webm', 'video/quicktime', // mov (QuickTime)
     'video/x-msvideo', // avi

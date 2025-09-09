@@ -16,8 +16,12 @@ import { OAuth2Client } from 'google-auth-library';
 
 const router = express.Router();
 
-// Initialize Google OAuth2 client for mobile token verification
-const googleClient = new OAuth2Client(process.env.GOOGLE_MOBILE_CLIENT_ID);
+// Feature flags for Google auth based on env presence
+const hasGoogleOAuth = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+const googleAudience = process.env.GOOGLE_MOBILE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '';
+
+// Initialize Google OAuth2 client for mobile token verification (only if configured)
+const googleClient = googleAudience ? new OAuth2Client(googleAudience) : null;
 
 // Generate JWT token with better security
 const generateToken = (userId) => {
@@ -32,45 +36,55 @@ const generateToken = (userId) => {
   );
 };
 
-// Google OAuth Strategy
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: '/api/auth/google/callback',
-}, async (accessToken, refreshToken, profile, done) => {
-  try {
-    const email = profile.emails[0].value;
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = new User({
-        name: profile.displayName,
-        email,
-        googleId: profile.id,
-        provider: 'google',
-        isVerified: true,
-        password: crypto.randomBytes(32).toString('hex') // secure dummy password for OAuth users
-      });
-      await user.save();
-    } else if (!user.googleId) {
-      user.googleId = profile.id;
-      user.provider = 'google';
-      user.isVerified = true;
-      await user.save();
+// Google OAuth Strategy (only when configured)
+if (hasGoogleOAuth) {
+  passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: '/api/auth/google/callback',
+  }, async (accessToken, refreshToken, profile, done) => {
+    try {
+      const email = profile.emails[0].value;
+      let user = await User.findOne({ email });
+      if (!user) {
+        user = new User({
+          name: profile.displayName,
+          email,
+          googleId: profile.id,
+          provider: 'google',
+          isVerified: true,
+          password: crypto.randomBytes(32).toString('hex') // secure dummy password for OAuth users
+        });
+        await user.save();
+      } else if (!user.googleId) {
+        user.googleId = profile.id;
+        user.provider = 'google';
+        user.isVerified = true;
+        await user.save();
+      }
+      return done(null, user);
+    } catch (err) {
+      return done(err, null);
     }
-    return done(null, user);
-  } catch (err) {
-    return done(err, null);
-  }
-}));
+  }));
+} else {
+  console.warn('Google OAuth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to enable.');
+}
 
 // Google OAuth login endpoint
-router.get('/google', passport.authenticate('google', {
-  scope: ['profile', 'email'],
-  session: false
-}));
+router.get('/google', (req, res, next) => {
+  if (!hasGoogleOAuth) {
+    return res.status(503).json({ success: false, message: 'Google OAuth is not configured on this server.' });
+  }
+  return passport.authenticate('google', { scope: ['profile', 'email'], session: false })(req, res, next);
+});
 
 // Google OAuth callback endpoint
 router.get('/google/callback', (req, res, next) => {
+  if (!hasGoogleOAuth) {
+    const param = encodeURIComponent('oauth_unavailable');
+    return res.redirect(`${process.env.FRONTEND_URL}/login?error=${param}`);
+  }
   passport.authenticate('google', { session: false }, (err, user, info) => {
     if (err || !user) {
       // Normalize error code for frontend display
@@ -97,6 +111,9 @@ router.post('/google', authLimiter, sanitizeInput, [
     .withMessage('ID token is required')
 ], async (req, res) => {
   try {
+    if (!googleClient) {
+      return res.status(503).json({ success: false, message: 'Google Sign-In is not configured on this server.' });
+    }
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

@@ -72,18 +72,27 @@ const fileSignatures = {
 
 // Validate file signature
 const validateFileSignature = (buffer, expectedMimeType) => {
-  if (!buffer || buffer.length < 8) return false;
-  
-  const signature = fileSignatures[expectedMimeType];
+  if (!buffer) return false;
+
+  // Normalize common alias MIME types
+  let mime = expectedMimeType;
+  if (mime === 'image/jpg' || mime === 'image/pjpeg' || mime === 'image/jfif') mime = 'image/jpeg';
+  if (mime === 'video/mov') mime = 'video/quicktime';
+
+  // Minimal length checks (JPEG needs only first 3 bytes, others need >= 8)
+  const minLen = mime === 'image/jpeg' ? 3 : 8;
+  if (buffer.length < minLen) return false;
+
+  const signature = fileSignatures[mime];
   if (!signature) return false;
   
   // For JPEG files, check for the standard JPEG signature
-  if (expectedMimeType === 'image/jpeg' || expectedMimeType === 'image/jpg') {
+  if (mime === 'image/jpeg') {
     return buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF;
   }
   
   // For MP4-like files (ISO BMFF), check multiple possible signatures
-  if (expectedMimeType === 'video/mp4' || expectedMimeType === 'video/quicktime' || expectedMimeType === 'video/x-m4v' || expectedMimeType === 'video/3gpp') {
+  if (mime === 'video/mp4' || mime === 'video/quicktime' || mime === 'video/x-m4v' || mime === 'video/3gpp') {
     // MP4 files can have different signatures, so we check multiple possibilities
     for (const mp4Signature of signature) {
       let isValid = true;
@@ -141,7 +150,7 @@ const fileFilter = (req, file, cb) => {
   }
 
   // Check file type
-  const allowedTypes = /jpeg|jpg|png|gif|webp|heic|heif|mp4|avi|mov|webm|hevc|quicktime|x-msvideo|x-m4v|x-matroska|3gpp|mkv|m4v|3gp/;
+  const allowedTypes = /jpeg|jpg|pjpeg|jfif|png|gif|webp|heic|heif|mp4|avi|mov|webm|hevc|quicktime|x-msvideo|x-m4v|x-matroska|3gpp|mkv|m4v|3gp/;
   const extname = allowedTypes.test(file.originalname.toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
 
@@ -194,6 +203,10 @@ const validateUploadedFile = (req, res, next) => {
 
     // Validate file signature
     if (!validateFileSignature(buffer, mimetype)) {
+      try {
+        const head = Array.from(buffer.subarray(0, 12)).map(b => b.toString(16).padStart(2, '0')).join(' ');
+        console.warn('Upload signature mismatch', { mimetype, originalname, head });
+      } catch (_) { /* no-op */ }
       return res.status(400).json({
         success: false,
         message: 'Invalid file content. File appears to be corrupted or of wrong type.'
