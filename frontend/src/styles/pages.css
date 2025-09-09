@@ -1,0 +1,20 @@
+/* Pages CSS - Organized into smaller, focused files */
+
+/* This file now imports individual page and component CSS files for better organization */
+/* Each file is focused on a specific page or component functionality */
+
+/* Page-specific styles */
+@import './pages/home.css';
+@import './pages/upload-pothole.css';
+@import './pages/gallery.css';
+@import './pages/my-reports.css';
+@import './pages/profile.css';
+
+/* Component-specific styles */
+@import './components/pothole-card.css';
+@import './components/forms.css';
+@import './components/social-share.css';
+@import './components/bug-feedback.css';
+
+/* Utilities */
+@import './utilities.css';

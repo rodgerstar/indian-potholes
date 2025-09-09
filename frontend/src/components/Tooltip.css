@@ -1,0 +1,161 @@
+/* Custom Tooltip Styles */
+.tippy-box[data-theme~='default'] {
+  background: var(--gray-900);
+  color: white;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tippy-box[data-theme~='default'] .tippy-arrow {
+  color: var(--gray-900);
+}
+
+.tippy-box[data-theme~='orange'] {
+  background: var(--primary-orange);
+  color: white;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.tippy-box[data-theme~='orange'] .tippy-arrow {
+  color: var(--primary-orange);
+}
+
+.tippy-box[data-theme~='light'] {
+  background: white;
+  color: var(--gray-900);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--gray-200);
+}
+
+.tippy-box[data-theme~='light'] .tippy-arrow {
+  color: white;
+}
+
+.tippy-box[data-theme~='error'] {
+  background: var(--secondary-red);
+  color: white;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.tippy-box[data-theme~='error'] .tippy-arrow {
+  color: var(--secondary-red);
+}
+
+.tippy-box[data-theme~='success'] {
+  background: var(--green);
+  color: white;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.tippy-box[data-theme~='success'] .tippy-arrow {
+  color: var(--green);
+}
+
+/* Custom content styles for interactive tooltips */
+.tooltip-content {
+  padding: 0.5rem;
+  line-height: 1.4;
+}
+
+.tooltip-content h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.tooltip-content p {
+  margin: 0;
+  font-size: 0.8125rem;
+  opacity: 0.9;
+}
+
+.tooltip-content .tooltip-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tooltip-content .tooltip-btn {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tooltip-content .tooltip-btn-primary {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.tooltip-content .tooltip-btn-primary:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.tooltip-content .tooltip-btn-secondary {
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+}
+
+.tooltip-content .tooltip-btn-secondary:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Animation improvements */
+.tippy-box[data-animation='fade'][data-state='hidden'] {
+  opacity: 0;
+}
+
+.tippy-box[data-animation='fade'][data-state='visible'] {
+  opacity: 1;
+}
+
+.tippy-box[data-animation='scale'] {
+  transform-origin: center;
+}
+
+.tippy-box[data-animation='scale'][data-state='hidden'] {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.tippy-box[data-animation='scale'][data-state='visible'] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .tippy-box {
+    font-size: 0.8125rem;
+    max-width: 250px !important;
+  }
+  
+  .tooltip-content {
+    padding: 0.4rem;
+  }
+  
+  .tooltip-content h4 {
+    font-size: 0.8125rem;
+  }
+  
+  .tooltip-content p {
+    font-size: 0.75rem;
+  }
+}

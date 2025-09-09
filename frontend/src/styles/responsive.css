@@ -1,0 +1,785 @@
+/* Responsive CSS - Optimized media queries and responsive design */
+
+/* Mobile First Approach - Base styles are for mobile */
+
+/* Responsive CSS - Mobile-first design with consistent breakpoints */
+
+/* Small screens (640px and up) - sm breakpoint */
+@media (min-width: 640px) {
+  .container-padding {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+  
+  .upload-container {
+    padding: 0 var(--space-6);
+  }
+  
+  .gallery-container {
+    padding: 0 var(--space-6);
+  }
+}
+
+/* Medium screens (768px and up) - md breakpoint */
+@media (min-width: 768px) {
+  /* Layout adjustments */
+  .md-flex-row {
+    flex-direction: row;
+  }
+  
+  .md-space-x-4 > * + * {
+    margin-left: var(--space-4);
+    margin-top: 0;
+  }
+  
+  /* Grid layouts */
+  .reports-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .authority-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .filters-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  /* Filter panel adjustments */
+  .filter-content {
+    flex-direction: row;
+  }
+  
+  /* Search form adjustments */
+  .search-form {
+    width: auto;
+  }
+  
+  .search-input {
+    width: auto;
+  }
+}
+
+/* Large screens (1024px and up) - lg breakpoint */
+@media (min-width: 1024px) {
+  .container-padding {
+    padding-left: var(--space-8);
+    padding-right: var(--space-8);
+  }
+  
+  .upload-container {
+    padding: 0 var(--space-8);
+  }
+  
+  .gallery-container {
+    padding: 0 var(--space-8);
+  }
+  
+  /* Grid layouts for large screens */
+  .reports-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .gallery-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .profile-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+/* Tablet Viewport Specific Styles (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container-padding {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+  
+  .upload-container,
+  .gallery-container {
+    padding: 0 var(--space-6);
+  }
+  
+  /* Grid layouts for tablet */
+  .reports-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .authority-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .filters-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  /* Filter panel adjustments for tablet */
+  .filter-content {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  /* Search form adjustments for tablet */
+  .search-form {
+    width: auto;
+  }
+  
+  .search-input {
+    width: auto;
+    min-width: 200px;
+  }
+  
+  /* Card adjustments for tablet */
+  .card-body {
+    padding: var(--space-6);
+  }
+  
+  .auth-container {
+    padding: var(--space-8) var(--space-6);
+  }
+  
+  .auth-title {
+    font-size: var(--text-3xl);
+  }
+  
+  .pothole-card {
+    margin-bottom: var(--space-6);
+  }
+  
+  .report-card {
+    margin-bottom: var(--space-6);
+  }
+  
+  .filter-panel {
+    padding: var(--space-6);
+  }
+  
+  .upload-card {
+    padding: var(--space-6);
+  }
+  
+  .profile-card {
+    padding: var(--space-6);
+  }
+  
+  .stats-card {
+    padding: var(--space-6);
+  }
+  
+  .actions-card {
+    padding: var(--space-6);
+  }
+  
+  /* Hero section adjustments for tablet */
+  .hero-gradient {
+    padding: var(--space-16) var(--space-6);
+  }
+  
+  .hero-gradient h1 {
+    font-size: var(--text-4xl);
+  }
+  
+  .hero-gradient p {
+    font-size: var(--text-xl);
+  }
+  
+  /* Bug/Feedback section adjustments for tablet */
+  .bug-feedback-content {
+    padding: 0 1.5rem;
+  }
+  
+  .bug-feedback-buttons {
+    flex-direction: row;
+    gap: 1rem;
+  }
+  
+  /* Form card adjustments for tablet */
+  .form-card {
+    padding: 1.5rem 1rem 2rem 1rem;
+  }
+  
+  /* Profile section adjustments for tablet */
+  .profile-bug-section-header, 
+  .profile-feedback-section-header {
+    font-size: 1.25rem;
+  }
+  
+  .profile-bug-feedback-item, 
+  .profile-feedback-accent {
+    padding: 1rem 0.75rem 1rem 1rem;
+  }
+}
+
+/* Extra large screens (1280px and up) */
+@media (min-width: 1280px) {
+  .gallery-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .reports-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Mobile-specific adjustments (max-width: 767px) */
+@media (max-width: 767px) {
+  /* Prevent horizontal scroll */
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+  /* Grid adjustments for mobile */
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .reports-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .authority-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Layout adjustments */
+  .filter-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-form {
+    width: 100%;
+  }
+  
+  .search-input {
+    width: 100%;
+  }
+  
+  /* Container adjustments */
+  .upload-container {
+    padding: 0 0.75rem;
+    max-width: 100vw;
+    width: 100%;
+  }
+  
+  .gallery-container {
+    padding: 0 0.75rem;
+    max-width: 100vw;
+    width: 100%;
+  }
+  
+  .reports-container {
+    padding: 1rem 0;
+  }
+  
+  .profile-container {
+    padding: 1rem 0;
+  }
+  
+  /* Card adjustments */
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .auth-container {
+    padding: 1rem;
+  }
+  
+  .auth-title {
+    font-size: 1.5rem;
+  }
+  
+  .pothole-card {
+    margin-bottom: 1rem;
+  }
+  
+  .report-card {
+    margin-bottom: 1rem;
+  }
+  
+  .filter-panel {
+    padding: 1rem;
+  }
+  
+  .upload-card {
+    padding: 1rem;
+  }
+  
+  .profile-card {
+    padding: 1rem;
+  }
+  
+  .stats-card {
+    padding: 1rem;
+  }
+  
+  .actions-card {
+    padding: 1rem;
+  }
+  
+  /* Hero section adjustments */
+  .hero-gradient {
+    padding: 3rem 1rem;
+  }
+  
+  .hero-gradient h1 {
+    font-size: 2rem;
+  }
+  
+  .hero-gradient p {
+    font-size: 1rem;
+  }
+  
+  /* Bug/Feedback section adjustments */
+  .bug-feedback-content {
+    padding: 0 1rem;
+  }
+  
+  .bug-feedback-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  /* Form card adjustments */
+  .form-card {
+    padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+  }
+  
+  /* Profile section adjustments */
+  .profile-bug-section-header, 
+  .profile-feedback-section-header {
+    font-size: 1.08rem;
+  }
+  
+  .profile-bug-feedback-item, 
+  .profile-feedback-accent {
+    padding: 0.8rem 0.5rem 0.8rem 0.7rem;
+  }
+}
+
+/* Small mobile adjustments (max-width: 480px) */
+@media (max-width: 480px) {
+  .container-padding {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  /* Ensure no element exceeds viewport width */
+  * {
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+  
+  .upload-container,
+  .gallery-container {
+    padding: 0 0.5rem;
+    max-width: 100vw;
+    width: 100%;
+  }
+  
+  .card-body {
+    padding: 0.75rem;
+  }
+  
+  .upload-card,
+  .profile-card,
+  .stats-card,
+  .actions-card,
+  .filter-panel {
+    padding: 0.75rem;
+  }
+  
+  .form-card {
+    padding: 1rem 0.75rem 1.5rem 0.75rem;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .hero-gradient {
+    padding: 2rem 0.5rem;
+    max-width: 100vw;
+    width: 100%;
+  }
+  
+  .hero-gradient h1 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+  
+  .upload-title,
+  .gallery-title,
+  .reports-title,
+  .profile-title {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  /* Enhanced mobile responsiveness for very small screens */
+  .hero-section {
+    min-height: 70vh;
+  }
+
+  .hero-content {
+    padding: 1rem 0.5rem;
+  }
+
+  .hero-title {
+    font-size: 1.75rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .logo-container {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .logo-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .btn-hero {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .stats-section {
+    padding: 2rem 1rem;
+  }
+
+  .stats-grid {
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 1.5rem;
+    min-height: 120px;
+  }
+
+  .stat-icon-container {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .stat-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .stat-number {
+    font-size: 1.75rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+  }
+
+  .features-section {
+    padding: 1.5rem 0.5rem;
+  }
+
+  .feature-card {
+    padding: 1rem;
+  }
+
+  .feature-icon-container {
+    width: 40px;
+    height: 40px;
+  }
+
+  .feature-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .feature-title {
+    font-size: 1rem;
+  }
+
+  .feature-description {
+    font-size: 0.75rem;
+  }
+
+  .cta-section {
+    padding: 1.5rem 0.5rem;
+  }
+
+  .cta-title {
+    font-size: 1.25rem;
+  }
+
+  .cta-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .btn-cta-primary,
+  .btn-cta-secondary {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  /* Minimize floating elements on very small screens */
+  .floating-1,
+  .floating-2,
+  .floating-3,
+  .floating-4 {
+    display: none;
+  }
+  
+  /* Fix navbar brand on very small screens */
+  .navbar-brand-text {
+    font-size: 0.95rem;
+  }
+  
+  /* Fix mobile menu positioning */
+  .mobile-nav {
+    top: 55px;
+  }
+
+  /* Admin dashboard specific adjustments */
+  .admin-dashboard {
+    padding: 0.5rem 0;
+  }
+
+  .admin-header {
+    padding: 1rem 0.5rem;
+    margin: 0 0.25rem 1rem 0.25rem;
+  }
+
+  .admin-title {
+    font-size: 1.25rem;
+  }
+
+  .admin-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .admin-content {
+    padding: 0.5rem;
+    margin: 0 0.25rem;
+  }
+
+  .admin-tabs {
+    gap: 0.125rem;
+    padding: 0 0.25rem;
+  }
+
+  .admin-tab {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .tab-icon {
+    font-size: 0.75rem;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .stat-card {
+    padding: 1.5rem !important;
+    min-height: 120px !important;
+  }
+
+  .stat-icon-container {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+
+  .stat-icon {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+
+  .stat-number {
+    font-size: 1.75rem !important;
+  }
+
+  .stat-label {
+    font-size: 0.8rem !important;
+  }
+
+  .section-header h2 {
+    font-size: 1rem;
+  }
+
+  .filter-btn,
+  .broadcast-btn {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .action-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .broadcast-modal {
+    margin: 0.25rem;
+    padding: 0.75rem;
+  }
+
+  .btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 600px) {
+  .upload-page,
+  .gallery-page {
+    padding: 1rem 0;
+  }
+  
+  .hero-gradient {
+    padding: 2rem 1rem;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .media-preview,
+  .preview-media,
+  .profile-bug-img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Print styles */
+@media print {
+  .navbar,
+  .footer,
+  .btn,
+  .pagination,
+  .upload-dropzone,
+  .map-container {
+    display: none !important;
+  }
+  
+  .card {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+  
+  .pothole-card,
+  .report-card {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .pothole-card:hover,
+  .report-card:hover,
+  .card:hover {
+    transform: none;
+  }
+  
+  .media-preview,
+  .preview-media {
+    transition: none;
+  }
+  
+  .upvote-btn.enabled:hover {
+    transform: none;
+  }
+}
+
+/* Dark mode support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  /* Dark mode styles can be added here */
+}
+
+/* Focus visible for better accessibility */
+@media (prefers-reduced-motion: no-preference) {
+  .btn:focus-visible,
+  .form-input:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* Container responsive breakpoints */
+@media (min-width: 640px) {
+  .container-sm {
+    max-width: 24rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-md {
+    max-width: 28rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-lg {
+    max-width: 32rem;
+  }
+  
+  .container-xl {
+    max-width: 36rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-2xl {
+    max-width: 42rem;
+  }
+  
+  .container-3xl {
+    max-width: 48rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container-4xl {
+    max-width: 56rem;
+  }
+  
+  .container-5xl {
+    max-width: 64rem;
+  }
+  
+  .container-6xl {
+    max-width: 72rem;
+  }
+  
+  .container-7xl {
+    max-width: 80rem;
+  }
+} 

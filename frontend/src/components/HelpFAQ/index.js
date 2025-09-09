@@ -1,0 +1,11 @@
+// Export all HelpFAQ components from this directory
+export { default as HeroSection } from './HeroSection';
+export { default as SearchSection } from './SearchSection';
+export { default as QuickActionsSection } from './QuickActionsSection';
+export { default as QuickActionCard } from './QuickActionCard';
+export { default as FAQSection } from './FAQSection';
+export { default as FAQCategory } from './FAQCategory';
+export { default as FAQItem } from './FAQItem';
+export { default as ContactSection } from './ContactSection';
+export { default as ContactOption } from './ContactOption';
+export { default as SectionHeader } from './SectionHeader';

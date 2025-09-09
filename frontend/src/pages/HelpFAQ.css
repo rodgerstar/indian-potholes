@@ -1,0 +1,82 @@
+/* Main HelpFAQ Page Styles */
+.help-faq {
+  background: var(--gray-50);
+}
+
+.help-faq__main {
+  position: relative;
+  z-index: 1;
+}
+
+/* Global improvements for better visual hierarchy */
+.help-faq *:focus {
+  outline-color: var(--primary-orange);
+}
+
+/* Ensure consistent spacing between sections */
+.help-faq__main > section {
+  position: relative;
+}
+
+.help-faq__main > section:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gray-200), transparent);
+}
+
+/* Enhanced accessibility */
+.help-faq [role="region"] {
+  scroll-margin-top: 2rem;
+}
+
+/* Print styles */
+@media print {
+  .help-faq {
+    background: white;
+  }
+  
+  .hero-section {
+    background: var(--gray-100) !important;
+    color: var(--gray-900) !important;
+    padding: 2rem 0 !important;
+  }
+  
+  .quick-actions-section,
+  .search-section {
+    display: none;
+  }
+  
+  .faq-category__header {
+    background: var(--gray-100) !important;
+  }
+  
+  .faq-category__content {
+    display: block !important;
+  }
+}
+
+/* Smooth animations for better UX */
+@media (prefers-reduced-motion: no-preference) {
+  .help-faq * {
+    transition: var(--transition);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .help-faq {
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+  
+  .quick-action-card,
+  .faq-category,
+  .contact-option {
+    border-width: 2px;
+  }
+}

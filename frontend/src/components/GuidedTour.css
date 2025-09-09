@@ -1,0 +1,264 @@
+/* Custom Shepherd.js Tour Styles */
+.shepherd-theme-custom .shepherd-modal-overlay-container {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.shepherd-theme-custom .shepherd-element {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e5e7eb;
+  max-width: 400px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.shepherd-theme-custom .shepherd-header {
+  background: linear-gradient(135deg, #f97316, #dc2626);
+  color: white;
+  border-radius: 1rem 1rem 0 0;
+  padding: 1.5rem;
+  margin: 0;
+}
+
+.shepherd-theme-custom .shepherd-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: white;
+}
+
+.shepherd-theme-custom .shepherd-text {
+  padding: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #374151;
+  margin: 0;
+}
+
+.shepherd-theme-custom .shepherd-footer {
+  padding: 1rem 1.5rem 1.5rem;
+  background: #f9fafb;
+  border-radius: 0 0 1rem 1rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.shepherd-theme-custom .shepherd-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shepherd-theme-custom .shepherd-button-primary {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: white;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.shepherd-theme-custom .shepherd-button-primary:hover {
+  background: linear-gradient(135deg, #ea580c, #dc2626);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.shepherd-theme-custom .shepherd-button-secondary {
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.shepherd-theme-custom .shepherd-button-secondary:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+}
+
+.shepherd-theme-custom .shepherd-cancel-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.shepherd-theme-custom .shepherd-cancel-icon:hover {
+  color: white;
+}
+
+.shepherd-theme-custom .shepherd-arrow {
+  display: none;
+}
+
+/* Custom arrow styles */
+.shepherd-theme-custom .shepherd-element::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 8px;
+  border-color: transparent;
+}
+
+.shepherd-theme-custom .shepherd-element[data-popper-placement^='bottom']::before {
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-bottom-color: white;
+  border-top-width: 0;
+}
+
+.shepherd-theme-custom .shepherd-element[data-popper-placement^='top']::before {
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-top-color: white;
+  border-bottom-width: 0;
+}
+
+.shepherd-theme-custom .shepherd-element[data-popper-placement^='left']::before {
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left-color: white;
+  border-right-width: 0;
+}
+
+.shepherd-theme-custom .shepherd-element[data-popper-placement^='right']::before {
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-right-color: white;
+  border-left-width: 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .shepherd-theme-custom .shepherd-element {
+    max-width: 320px;
+    margin: 0 1rem;
+    position: fixed !important;
+  }
+  
+  .shepherd-theme-custom .shepherd-header {
+    padding: 1rem;
+  }
+  
+  .shepherd-theme-custom .shepherd-title {
+    font-size: 1.125rem;
+  }
+  
+  .shepherd-theme-custom .shepherd-text {
+    padding: 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .shepherd-theme-custom .shepherd-footer {
+    padding: 0.75rem 1rem 1rem;
+    flex-direction: column;
+  }
+  
+  .shepherd-theme-custom .shepherd-button {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.8125rem;
+    width: 100%;
+  }
+  
+  .shepherd-theme-custom .shepherd-cancel-icon {
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  /* Mobile-specific positioning */
+  .shepherd-theme-custom .shepherd-element[data-popper-placement^='right'] {
+    transform: translateX(-10px) !important;
+  }
+  
+  .shepherd-theme-custom .shepherd-element[data-popper-placement^='left'] {
+    transform: translateX(10px) !important;
+  }
+  
+  /* Ensure tour steps are visible above mobile nav */
+  .shepherd-theme-custom .shepherd-element {
+    z-index: 9999 !important;
+  }
+  
+  /* Hide arrows on mobile for better readability */
+  .shepherd-theme-custom .shepherd-element::before {
+    display: none;
+  }
+}
+
+/* Welcome step special styling */
+.shepherd-theme-custom .shepherd-step-welcome .shepherd-header {
+  background: linear-gradient(135deg, #f97316, #dc2626);
+  text-align: center;
+  padding: 2rem 1.5rem;
+}
+
+.shepherd-theme-custom .shepherd-step-welcome .shepherd-title {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.shepherd-theme-custom .shepherd-step-welcome .shepherd-text {
+  text-align: center;
+  font-size: 1.125rem;
+  padding: 1.5rem;
+}
+
+.shepherd-theme-custom .shepherd-step-complete .shepherd-header {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.shepherd-theme-custom .shepherd-step-complete .shepherd-text {
+  text-align: center;
+  font-size: 1.125rem;
+}
+
+/* Animation for tour steps */
+.shepherd-theme-custom .shepherd-element {
+  animation: shepherdFadeIn 0.3s ease-out;
+}
+
+@keyframes shepherdFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulse animation for highlighted elements */
+.shepherd-enabled .shepherd-target {
+  animation: shepherdPulse 2s ease-in-out infinite;
+}
+
+@keyframes shepherdPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
+  }
+}

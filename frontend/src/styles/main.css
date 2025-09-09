@@ -1,0 +1,33 @@
+/* Main CSS - Imports all CSS files in the correct order */
+
+/* Import base styles first */
+@import './base.css';
+
+/* Import components */
+@import './components.css';
+
+/* Import page-specific styles */
+@import './pages/home.css';
+@import './pages/upload-pothole.css';
+@import './pages/gallery.css';
+@import './pages/my-reports.css';
+@import './pages/profile.css';
+@import './pages/notifications.css';
+@import './pages/admin-dashboard.css';
+@import './pages/not-found.css';
+@import './pages/static-pages.css';
+@import './pages/heatmap-view.css';
+@import './pages/report-submitted.css';
+
+/* Import component-specific styles */
+@import './components/navbar.css';
+@import './components/notification-bell.css';
+@import './components/pothole-card.css';
+@import './components/forms.css';
+@import './components/bug-feedback.css';
+
+/* Import utilities */
+@import './utilities.css';
+
+/* Import responsive styles last */
+@import './responsive.css'; 

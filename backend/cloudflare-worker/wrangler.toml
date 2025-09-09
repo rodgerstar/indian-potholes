@@ -1,0 +1,31 @@
+name = "pothole-images"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[env.production]
+name = "pothole-images"
+
+[env.staging]
+name = "pothole-images-staging"
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "pothole-images"
+preview_bucket_name = "pothole-images-dev"
+
+[[env.production.r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "pothole-images"
+
+[[env.staging.r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "pothole-images-staging"
+
+# Optional: Add custom domain
+# [[env.production.routes]]
+# pattern = "images.yourdomain.com/*"
+# zone_name = "yourdomain.com"
+
+# [[env.staging.routes]]
+# pattern = "images-staging.yourdomain.com/*"
+# zone_name = "yourdomain.com" 

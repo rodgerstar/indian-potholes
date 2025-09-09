@@ -1,0 +1,172 @@
+.leaderboard-container {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+.leaderboard-title {
+  display: flex;
+  align-items: center;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #ea580c;
+  gap: 0.5rem;
+}
+
+.leaderboard-title-icon {
+  font-size: 2.2rem;
+  color: #f59e42;
+}
+
+.leaderboard-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin-bottom: 1.2rem;
+  align-items: center;
+  background: #f9fafb;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  padding: 0.7rem 0.7rem 0.2rem 0.7rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.leaderboard-filters label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 0.2rem;
+}
+
+.leaderboard-filters select {
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid #ececec;
+  font-size: 1rem;
+  background: #f9fafb;
+  color: #333;
+}
+
+.leaderboard-text-input {
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid #ececec;
+  font-size: 1rem;
+  background: #f9fafb;
+  color: #333;
+  min-width: 140px;
+}
+
+.leaderboard-table-wrapper {
+  overflow-x: auto;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fafafa;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.leaderboard-table th, .leaderboard-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #ececec;
+}
+
+.leaderboard-table th {
+  background: #f3f4f6;
+  color: #ea580c;
+  font-weight: 600;
+}
+
+.leaderboard-table tr:last-child td {
+  border-bottom: none;
+}
+
+.leaderboard-table td {
+  font-size: 1rem;
+  color: #333;
+}
+
+.leaderboard-error {
+  color: #b91c1c;
+  background: #fee2e2;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .leaderboard-title {
+    font-size: 1.3rem;
+  }
+  .leaderboard-filters {
+    flex-direction: column;
+    gap: 0.3rem;
+    align-items: stretch;
+    padding: 0.5rem 0.5rem 0.1rem 0.5rem;
+    margin-bottom: 0.7rem;
+  }
+  .leaderboard-filters label {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    font-size: 0.97rem;
+    margin-bottom: 0.1rem;
+  }
+  .leaderboard-filters select,
+  .leaderboard-text-input {
+    width: 100%;
+    min-width: 0;
+    margin-top: 0.15rem;
+    font-size: 0.98rem;
+    box-sizing: border-box;
+  }
+  .leaderboard-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    position: relative;
+  }
+  .leaderboard-table {
+    min-width: 600px;
+    font-size: 0.97rem;
+    border-radius: 8px;
+    background: #fff;
+  }
+  .leaderboard-table th, .leaderboard-table td {
+    padding: 0.38rem 0.3rem;
+    font-size: 0.93rem;
+    white-space: nowrap;
+  }
+  .leaderboard-table th {
+    position: sticky;
+    top: 0;
+    background: #f3f4f6;
+    z-index: 2;
+    font-size: 0.97rem;
+  }
+  .leaderboard-table-wrapper::after {
+    content: '→';
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    font-size: 1.1rem;
+    color: #ea580c;
+    opacity: 0.5;
+    pointer-events: none;
+    display: block;
+  }
+  .leaderboard-container {
+    padding: 0.5rem;
+  }
+} 

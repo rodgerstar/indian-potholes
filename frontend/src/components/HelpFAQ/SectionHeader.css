@@ -1,0 +1,88 @@
+/* SectionHeader Component Styles */
+.section-header {
+  margin-bottom: 2rem;
+}
+
+.section-header--center {
+  text-align: center;
+}
+
+.section-header--left {
+  text-align: left;
+}
+
+.section-header--right {
+  text-align: right;
+}
+
+.section-header__title {
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.section-header--large .section-header__title {
+  font-size: 2rem;
+}
+
+.section-header--medium .section-header__title {
+  font-size: 1.75rem;
+}
+
+.section-header--small .section-header__title {
+  font-size: 1.5rem;
+}
+
+.section-header__subtitle {
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.section-header--large .section-header__subtitle {
+  font-size: 1.125rem;
+  max-width: 600px;
+}
+
+.section-header--medium .section-header__subtitle {
+  font-size: 1rem;
+  max-width: 500px;
+}
+
+.section-header--small .section-header__subtitle {
+  font-size: 0.875rem;
+  max-width: 400px;
+}
+
+.section-header--center .section-header__subtitle {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-header--large .section-header__title {
+    font-size: 1.75rem;
+  }
+  
+  .section-header--medium .section-header__title {
+    font-size: 1.5rem;
+  }
+  
+  .section-header--small .section-header__title {
+    font-size: 1.25rem;
+  }
+  
+  .section-header--large .section-header__subtitle {
+    font-size: 1rem;
+  }
+  
+  .section-header--medium .section-header__subtitle {
+    font-size: 0.875rem;
+  }
+  
+  .section-header--small .section-header__subtitle {
+    font-size: 0.75rem;
+  }
+}

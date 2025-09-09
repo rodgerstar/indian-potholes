@@ -1,0 +1,262 @@
+/* R2Image Component Styles */
+
+.r2-image-container {
+  position: relative;
+  display: inline-block;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.r2-image-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Loading State */
+.r2-image-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  z-index: 1;
+}
+
+.r2-image-spinner {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  animation: spin 1s linear infinite;
+}
+
+.r2-image-placeholder {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  max-width: 80%;
+  line-height: 1.4;
+}
+
+/* Error State */
+.r2-image-error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff5f5;
+  color: #e53e3e;
+  z-index: 2;
+}
+
+.r2-image-error-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #e53e3e;
+}
+
+.r2-image-error-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  max-width: 80%;
+  line-height: 1.4;
+}
+
+/* Image Styles */
+.r2-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.r2-image:not(.loading):not(.error) {
+  opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .r2-image-container {
+    border-radius: 6px;
+  }
+  
+  .r2-image-spinner,
+  .r2-image-error-icon {
+    font-size: 1.5rem;
+  }
+  
+  .r2-image-placeholder,
+  .r2-image-error-text {
+    font-size: 0.75rem;
+  }
+}
+
+/* Animation for spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus styles for accessibility */
+.r2-image-container:focus-within {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .r2-image-loading {
+    background-color: #ffffff;
+    color: #000000;
+  }
+  
+  .r2-image-error {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+  
+  .r2-image-error-icon {
+    color: #c62828;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .r2-image-spinner {
+    animation: none;
+  }
+  
+  .r2-image-container,
+  .r2-image {
+    transition: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .r2-image-container {
+    background-color: #2d3748;
+  }
+  
+  .r2-image-loading {
+    background-color: #2d3748;
+    color: #a0aec0;
+  }
+  
+  .r2-image-error {
+    background-color: #742a2a;
+    color: #feb2b2;
+  }
+  
+  .r2-image-error-icon {
+    color: #feb2b2;
+  }
+}
+
+/* Custom sizes */
+.r2-image-container.small {
+  width: 100px;
+  height: 100px;
+}
+
+.r2-image-container.medium {
+  width: 200px;
+  height: 200px;
+}
+
+.r2-image-container.large {
+  width: 300px;
+  height: 300px;
+}
+
+.r2-image-container.thumbnail {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+}
+
+.r2-image-container.banner {
+  width: 100%;
+  height: 200px;
+  border-radius: 0;
+}
+
+/* Aspect ratio containers */
+.r2-image-container.aspect-16-9 {
+  aspect-ratio: 16 / 9;
+}
+
+.r2-image-container.aspect-4-3 {
+  aspect-ratio: 4 / 3;
+}
+
+.r2-image-container.aspect-1-1 {
+  aspect-ratio: 1 / 1;
+}
+
+.r2-image-container.aspect-3-2 {
+  aspect-ratio: 3 / 2;
+}
+
+/* Loading skeleton animation */
+.r2-image-loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Disable shimmer animation for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .r2-image-loading::before {
+    animation: none;
+  }
+} 
