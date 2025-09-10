@@ -49,6 +49,5 @@ This project is licensed under the GNU Affero General Public License v3.0. See `
 
 ## Star History
 
-## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Empowered-Indian/indian-potholes&type=Date)](https://www.star-history.com/#Empowered-Indian/indian-potholes&Date)
