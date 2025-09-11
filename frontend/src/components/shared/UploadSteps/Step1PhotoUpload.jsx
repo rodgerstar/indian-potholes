@@ -138,7 +138,7 @@ const Step1PhotoUpload = ({ onNext, onGPSFound, formData, setFormData }) => {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*,video/*"
+            accept="image/*,video/*,image/heic,image/heif"
             multiple
             onChange={handleFileSelect}
             style={{ display: 'none' }}

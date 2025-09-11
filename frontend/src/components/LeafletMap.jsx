@@ -11,10 +11,14 @@ L.Icon.Default.mergeOptions({
 });
 
 const LeafletMap = ({ 
-  center = [28.6139, 77.2090], // Default to Delhi
+  center = [22.9734, 78.6569], // Default to India centroid (visual only)
   zoom = 13,
-  markers = [],
+  markers = [], // [{ position: [lat,lng], popup?, icon?, draggable? }]
   onClick,
+  onMarkerDragEnd, // ({ lat, lng, index }) => void
+  showPlaceHere = false,
+  placeHereLabel = 'Place pin here',
+  showCrosshair = false,
   height = '400px',
   width = '100%',
   className = '',
@@ -56,7 +60,7 @@ const LeafletMap = ({
     let validCenter = center;
     if (!Array.isArray(center) || center.length !== 2) {
       console.warn('Invalid center coordinates provided to LeafletMap, using default:', center);
-      validCenter = [28.6139, 77.2090]; // Default to Delhi
+      validCenter = [22.9734, 78.6569]; // Default to India centroid
     } else {
       const [lat, lng] = center;
       if (typeof lat !== 'number' || typeof lng !== 'number' || 
@@ -64,7 +68,7 @@ const LeafletMap = ({
           lat < -90 || lat > 90 || 
           lng < -180 || lng > 180) {
         console.warn('Invalid center coordinates provided to LeafletMap, using default:', center);
-        validCenter = [28.6139, 77.2090]; // Default to Delhi
+        validCenter = [22.9734, 78.6569]; // Default to India centroid
       }
     }
 
@@ -149,11 +153,14 @@ const LeafletMap = ({
     if (!mapInstanceRef.current) return;
 
     // Clear existing markers
-    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current.forEach(marker => {
+      try { marker.off('dragend'); } catch (_) {}
+      try { marker.remove(); } catch (_) {}
+    });
     markersRef.current = [];
 
     // Add new markers
-    markers.forEach(({ position, popup, icon }) => {
+    markers.forEach(({ position, popup, icon, draggable }, index) => {
       if (Array.isArray(position) && position.length === 2) {
         const [lat, lng] = position;
         // Validate marker coordinates
@@ -162,10 +169,18 @@ const LeafletMap = ({
             lat >= -90 && lat <= 90 && 
             lng >= -180 && lng <= 180) {
           const marker = icon
-            ? L.marker(position, { icon }).addTo(mapInstanceRef.current)
-            : L.marker(position).addTo(mapInstanceRef.current);
+            ? L.marker(position, { icon, draggable: !!draggable }).addTo(mapInstanceRef.current)
+            : L.marker(position, { draggable: !!draggable }).addTo(mapInstanceRef.current);
           if (popup) {
             marker.bindPopup(popup);
+          }
+          if (draggable && typeof onMarkerDragEnd === 'function') {
+            marker.on('dragend', () => {
+              try {
+                const ll = marker.getLatLng();
+                onMarkerDragEnd({ lat: ll.lat, lng: ll.lng, index });
+              } catch (_) { /* no-op */ }
+            });
           }
           markersRef.current.push(marker);
         } else {
@@ -173,7 +188,7 @@ const LeafletMap = ({
         }
       }
     });
-  }, [markers]);
+  }, [markers, onMarkerDragEnd]);
 
   // Update center when center prop changes
   useEffect(() => {
@@ -193,6 +208,14 @@ const LeafletMap = ({
     }
   }, [center, zoom]);
 
+  const getCenterLatLng = () => {
+    try {
+      const c = mapInstanceRef.current?.getCenter();
+      if (c) return [c.lat, c.lng];
+    } catch (_) {}
+    return Array.isArray(center) ? center : [22.9734, 78.6569];
+  };
+
   return (
     <div style={{ position: 'relative', width }}>
       <div 
@@ -205,6 +228,61 @@ const LeafletMap = ({
         }}
         className={className}
       />
+      {showCrosshair && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            pointerEvents: 'none',
+            zIndex: 5,
+          }}
+          aria-hidden="true"
+        >
+          <div style={{
+            width: 26,
+            height: 26,
+            borderRadius: 999,
+            border: '2px solid #2563eb',
+            boxShadow: '0 0 0 2px rgba(37,99,235,0.15)'
+          }} />
+        </div>
+      )}
+      {showPlaceHere && (
+        <div style={{
+          position: 'absolute',
+          bottom: 10,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 6,
+          pointerEvents: 'auto'
+        }}>
+          <button
+            type="button"
+            onClick={() => {
+              const [lat, lng] = getCenterLatLng();
+              if (typeof onClick === 'function') {
+                try { onClick({ lat, lng, latLng: { lat, lng } }); } catch(_) {}
+              }
+              if (typeof onMarkerDragEnd === 'function') {
+                try { onMarkerDragEnd({ lat, lng, index: 0 }); } catch(_) {}
+              }
+            }}
+            style={{
+              background: '#2563eb',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 8,
+              padding: '10px 14px',
+              fontSize: 14,
+              fontWeight: 600,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              cursor: 'pointer'
+            }}
+          >{placeHereLabel}</button>
+        </div>
+      )}
       {showOsmDisclaimer && (
         <div
           className="osm-disclaimer"

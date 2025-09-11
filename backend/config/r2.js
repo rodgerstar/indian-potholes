@@ -151,10 +151,12 @@ const fileFilter = (req, file, cb) => {
 
   // Check file type
   const allowedTypes = /jpeg|jpg|pjpeg|jfif|png|gif|webp|heic|heif|mp4|avi|mov|webm|hevc|quicktime|x-msvideo|x-m4v|x-matroska|3gpp|mkv|m4v|3gp/;
-  const extname = allowedTypes.test(file.originalname.toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  const original = (file.originalname || '').toLowerCase();
+  const extname = allowedTypes.test(original);
+  const mimetype = allowedTypes.test((file.mimetype || '').toLowerCase());
 
-  if (!mimetype || !extname) {
+  // Allow if EITHER the MIME or the extension matches; signature will be validated later
+  if (!mimetype && !extname) {
     return cb(new Error('Only images (JPEG, JPG, PNG, GIF, WEBP, HEIC, HEIF) and videos (MP4, AVI, MOV, WEBM, HEVC) are allowed!'));
   }
 
@@ -181,6 +183,46 @@ const upload = multer({
 });
 
 // Enhanced file validation middleware
+const extensionToMime = (name) => {
+  const lower = (name || '').toLowerCase();
+  const ext = lower.split('.').pop();
+  switch (ext) {
+    case 'jpg':
+    case 'jpeg':
+    case 'pjpeg':
+    case 'jfif':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'gif':
+      return 'image/gif';
+    case 'webp':
+      return 'image/webp';
+    case 'heic':
+      return 'image/heic';
+    case 'heif':
+      return 'image/heif';
+    case 'mp4':
+      return 'video/mp4';
+    case 'mov':
+      return 'video/quicktime';
+    case 'avi':
+      return 'video/x-msvideo';
+    case 'm4v':
+      return 'video/x-m4v';
+    case 'mkv':
+      return 'video/x-matroska';
+    case 'webm':
+      return 'video/webm';
+    case '3gp':
+      return 'video/3gpp';
+    case 'hevc':
+      return 'video/hevc';
+    default:
+      return null;
+  }
+};
+
 const validateUploadedFile = (req, res, next) => {
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({
@@ -201,11 +243,21 @@ const validateUploadedFile = (req, res, next) => {
       });
     }
 
+    // Determine expected mime for signature validation; some browsers send application/octet-stream for HEIC
+    const expectedMime = (() => {
+      const normalized = (mimetype || '').toLowerCase();
+      const allowed = /jpeg|jpg|pjpeg|jfif|png|gif|webp|heic|heif|mp4|avi|mov|webm|hevc|quicktime|x-msvideo|x-m4v|x-matroska|3gpp|mkv|m4v|3gp/.test(normalized);
+      if (allowed) return normalized;
+      const byExt = extensionToMime(originalname);
+      if (byExt) return byExt;
+      return normalized; // fallback (may fail signature)
+    })();
+
     // Validate file signature
-    if (!validateFileSignature(buffer, mimetype)) {
+    if (!validateFileSignature(buffer, expectedMime)) {
       try {
         const head = Array.from(buffer.subarray(0, 12)).map(b => b.toString(16).padStart(2, '0')).join(' ');
-        console.warn('Upload signature mismatch', { mimetype, originalname, head });
+        console.warn('Upload signature mismatch', { mimetype, expectedMime, originalname, head });
       } catch (_) { /* no-op */ }
       return res.status(400).json({
         success: false,
@@ -287,14 +339,40 @@ const uploadToR2 = async (file, folder = 'pothole-reports', retries = 3) => {
             candidates.push({ name: 'webp-lossy', buf: webpLossy, ext: 'webp', mime: 'image/webp' });
           }
 
-          // Choose smallest candidate that is smaller than original
+          // Choose candidate
           const originalSize = file.buffer.length;
+          const isHeicInput = (contentType === 'image/heic' || contentType === 'image/heif' || originalExt === 'heic' || originalExt === 'heif');
           let best = null;
           for (const c of candidates) {
             const size = c.buf.length;
             if (!best || size < best.size) best = { ...c, size };
           }
-          if (best && best.size < originalSize) {
+          // Prefer WebP for HEIC/HEIF inputs (ensure consistent compatibility)
+          if (isHeicInput) {
+            const webpCandidate = candidates.find(c => c.ext === 'webp');
+            if (webpCandidate) {
+              uploadBody = webpCandidate.buf;
+              contentType = webpCandidate.mime; // image/webp
+              finalExt = webpCandidate.ext; // webp
+              optimizationMeta = {
+                'optimized': 'true',
+                'optimized-variant': webpCandidate.name,
+                'original-size': originalSize.toString(),
+                'new-size': webpCandidate.buf.length.toString(),
+                'source': 'heic-convert'
+              };
+            } else if (best && best.size < originalSize) {
+              uploadBody = best.buf;
+              contentType = best.mime;
+              finalExt = best.ext;
+              optimizationMeta = {
+                'optimized': 'true',
+                'optimized-variant': best.name,
+                'original-size': originalSize.toString(),
+                'new-size': best.size.toString(),
+              };
+            }
+          } else if (best && best.size < originalSize) {
             uploadBody = best.buf;
             contentType = best.mime;
             finalExt = best.ext;

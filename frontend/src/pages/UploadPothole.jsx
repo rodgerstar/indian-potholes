@@ -19,7 +19,8 @@ import {
 import { RiUserLine } from 'react-icons/ri';
 import { getApiBaseUrl } from '../config/environment.js';
 
-const defaultCenter = [28.6139, 77.2090]; // Delhi coordinates as default
+// Visual default only (do not submit this as data)
+const defaultCenter = [22.9734, 78.6569]; // India centroid
 
 
 /**
@@ -31,8 +32,9 @@ const UploadPothole = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     locationName: '',
-    latitude: defaultCenter[0],
-    longitude: defaultCenter[1],
+    // Require explicit selection (map, GPS, or EXIF)
+    latitude: null,
+    longitude: null,
     state: '',
     constituency: '',
     parliamentaryConstituency: '',
@@ -151,14 +153,14 @@ const UploadPothole = () => {
     // Get current form data with any pending updates
     const currentFormData = {
       ...formData,
-      latitude: formData.latitude || markerPosition?.[0] || defaultCenter[0],
-      longitude: formData.longitude || markerPosition?.[1] || defaultCenter[1],
+      // Use only explicitly set coordinates (map/GPS/EXIF)
+      latitude: formData.latitude ?? (markerPosition ? markerPosition[0] : null),
+      longitude: formData.longitude ?? (markerPosition ? markerPosition[1] : null),
       locationName: formData.locationName || 'Selected Location'
     };
     
     // Validate required fields
-    if (!currentFormData.latitude || !currentFormData.longitude || 
-        currentFormData.latitude === undefined || currentFormData.longitude === undefined ||
+    if (currentFormData.latitude === undefined || currentFormData.longitude === undefined ||
         currentFormData.latitude === null || currentFormData.longitude === null ||
         isNaN(Number(currentFormData.latitude)) || isNaN(Number(currentFormData.longitude))) {
       toast.error('Please select a location on the map in Step 2');

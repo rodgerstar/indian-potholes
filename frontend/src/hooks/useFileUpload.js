@@ -117,14 +117,68 @@ const useFileUpload = ({
    * @param {File} file - File to create preview for
    * @returns {Promise<string>} Preview URL
    */
-  const createFilePreview = useCallback((file) => {
+  const blobToDataURL = useCallback((blob) => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (e) => resolve(e.target.result);
       reader.onerror = () => resolve(null);
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(blob);
     });
   }, []);
+
+  const isHeicFile = useCallback((file) => {
+    const type = (file?.type || '').toLowerCase();
+    const nameLower = (file?.name || '').toLowerCase();
+    const ext = nameLower.split('.').pop();
+    return /heic|heif/.test(type) || /heic|heif/.test(ext || '');
+  }, []);
+
+  const generatePlaceholderDataURL = useCallback((label = 'Preview Unavailable') => {
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+      <svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'>
+        <rect width='100%' height='100%' fill='#f3f4f6'/>
+        <g>
+          <text x='50%' y='45%' dominant-baseline='middle' text-anchor='middle' fill='#6b7280' font-size='20' font-family='sans-serif'>${label}</text>
+          <text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' fill='#9ca3af' font-size='14' font-family='sans-serif'>HEIC will be converted after upload</text>
+        </g>
+      </svg>`;
+    return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+  }, []);
+
+  const convertHeicToDataUrl = useCallback(async (file) => {
+    try {
+      const mod = await import('heic2any');
+      const heic2any = mod?.default || mod;
+      // Prefer JPEG for preview for maximum compatibility
+      try {
+        const outJpg = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.72 });
+        const jpgBlob = Array.isArray(outJpg) ? outJpg[0] : outJpg;
+        const dataUrlJpg = await blobToDataURL(jpgBlob);
+        if (dataUrlJpg) return dataUrlJpg;
+      } catch (_) {
+        const out = await heic2any({ blob: file, toType: 'image/webp', quality: 0.72 });
+        const conv = Array.isArray(out) ? out[0] : out;
+        const dataUrl = await blobToDataURL(conv);
+        if (dataUrl) return dataUrl;
+      }
+    } catch (e) {
+      console.warn('HEIC conversion failed:', e?.message || e);
+    }
+    return null;
+  }, [blobToDataURL]);
+
+  const createFilePreview = useCallback(async (file) => {
+    try {
+      if (isHeicFile(file)) {
+        // Instant placeholder for speed; conversion happens asynchronously
+        return generatePlaceholderDataURL(file.name);
+      }
+      // Default: read as DataURL
+      return await blobToDataURL(file);
+    } catch (_) {
+      return generatePlaceholderDataURL();
+    }
+  }, [blobToDataURL, generatePlaceholderDataURL, isHeicFile]);
 
   /**
    * Validate file
@@ -132,9 +186,16 @@ const useFileUpload = ({
    * @returns {boolean} Whether file is valid
    */
   const validateFile = useCallback((file) => {
+    // Primary: MIME allowlist
     if (!allowedTypes.includes(file.type)) {
-      toast.error(`Invalid file type: ${file.name}. Only images and videos are allowed.`);
-      return false;
+      // Fallback: check extension for common cases (e.g., HEIC/HEIF may have missing/odd MIME)
+      const lower = (file.name || '').toLowerCase();
+      const ext = lower.split('.').pop();
+      const allowedExt = new Set(['jpg','jpeg','png','gif','webp','heic','heif','mp4','mov','webm','avi','m4v','mkv','3gp','hevc']);
+      if (!ext || !allowedExt.has(ext)) {
+        toast.error(`Invalid file type: ${file.name}. Only images and videos are allowed.`);
+        return false;
+      }
     }
     if (file.size > maxSize) {
       toast.error(`File too large: ${file.name}. Maximum size is ${Math.round(maxSize / (1024 * 1024))}MB.`);
@@ -189,8 +250,24 @@ const useFileUpload = ({
         const file = validFiles[i];
         
         // Create preview
-        const preview = await createFilePreview(file);
-        newPreviews.push(preview);
+        if (isHeicFile(file)) {
+          const previewIndex = newPreviews.length;
+          newPreviews.push(generatePlaceholderDataURL(file.name));
+          // Fire-and-forget async conversion to avoid blocking UI
+          (async () => {
+            const dataUrl = await convertHeicToDataUrl(file);
+            if (dataUrl) {
+              setFilePreviews(prev => {
+                const arr = [...prev];
+                if (previewIndex < arr.length) arr[previewIndex] = dataUrl;
+                return arr;
+              });
+            }
+          })();
+        } else {
+          const preview = await blobToDataURL(file);
+          newPreviews.push(preview);
+        }
         
         // Extract GPS for images
         if (file.type.startsWith('image/') && !gpsFound && onGPSFound) {

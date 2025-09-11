@@ -297,6 +297,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap; /* prevent overflow on narrow screens */
   gap: var(--space-4);
   margin-top: var(--space-8);
   padding-top: var(--space-6);
@@ -318,12 +319,24 @@
   gap: var(--space-2);
   font-weight: var(--font-medium);
   white-space: nowrap;
+  max-width: 100%; /* avoid overflowing container */
+  overflow: hidden; /* clip overly long content */
 }
 
 .step-actions .btn-lg {
   min-width: 140px;
   height: 52px;
   font-size: 1rem;
+}
+
+/* Ensure loading content inside the button can shrink without overflow */
+.step-actions .loading-content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0; /* allow flex children to shrink */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Step icon sizing */

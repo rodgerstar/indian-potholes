@@ -17,6 +17,7 @@
     "axios": "^1.6.2",
     "leaflet": "^1.9.4",
     "leaflet.heat": "^0.2.0",
+    "heic2any": "^0.0.4",
     "piexifjs": "^1.0.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
