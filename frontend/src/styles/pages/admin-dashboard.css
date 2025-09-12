@@ -337,6 +337,39 @@
   width: 100%;
 }
 
+/* Moderation-specific filter bar */
+.moderation-filters {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(160px, 1fr));
+  gap: 0.75rem;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem;
+  background: var(--admin-card-bg);
+  border-bottom: 1px solid var(--admin-border);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 0.75rem;
+  border-radius: 10px;
+}
+
+.moderation-filters .filter-input,
+.moderation-filters .filter-select {
+  width: 100%;
+}
+
+.moderation-filters .filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.moderation-filters .clear-filters-btn {
+  justify-self: end;
+}
+
 .filter-input,
 .filter-select {
   padding: 0.5rem 0.75rem;
@@ -928,6 +961,11 @@ tr:hover {
     gap: 0.5rem;
   }
 
+  .moderation-filters {
+    grid-template-columns: repeat(3, minmax(160px, 1fr));
+    top: 0;
+  }
+
   .filter-input,
   .filter-select {
     min-width: 120px;
@@ -1469,6 +1507,12 @@ tr:hover {
 
   .filters {
     gap: 0.5rem;
+  }
+
+  .moderation-filters {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+    padding: 0.5rem;
+    row-gap: 0.5rem;
   }
 
   .filter-btn,

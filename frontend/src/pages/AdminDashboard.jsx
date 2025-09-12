@@ -41,6 +41,7 @@ import {
   RiAlertLine
 } from 'react-icons/ri';
 import toast from 'react-hot-toast';
+import { generateVideoThumbnail } from '../utils/videoThumbnail';
 
 // Complete list of Indian states and union territories
 const INDIAN_STATES = [
@@ -266,6 +267,9 @@ const AdminDashboard = () => {
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const [bulkRejectIds, setBulkRejectIds] = useState([]);
 
+  // Cache of generated video thumbnails for moderation cards (keyed by report _id)
+  const [moderationVideoThumbs, setModerationVideoThumbs] = useState({});
+
   // Quick assignment inside Moderation cards
   const [quickAssignOpenId, setQuickAssignOpenId] = useState(null);
   const [qaForm, setQaForm] = useState({ state: '', constituency: '', parliamentaryConstituency: '' });
@@ -308,6 +312,34 @@ const AdminDashboard = () => {
     }
     fetchStats();
   }, [user]);
+
+  // Generate thumbnails for videos in currently visible moderation list (first media only)
+  useEffect(() => {
+    if (activeTab !== 'moderation') return;
+    const list = moderationView === 'pending' ? pendingReports : rejectedReports;
+    if (!Array.isArray(list) || list.length === 0) return;
+
+    let cancelled = false;
+    const tasks = [];
+    list.forEach((report) => {
+      if (!report || !report._id || !Array.isArray(report.media) || report.media.length === 0) return;
+      const first = report.media[0];
+      if (first?.type !== 'video' || !first.url) return;
+      if (moderationVideoThumbs[report._id]) return; // already generated
+      tasks.push(
+        generateVideoThumbnail(first.url, 0.5, 200)
+          .then((thumb) => {
+            if (cancelled || !thumb) return;
+            setModerationVideoThumbs((prev) => ({ ...prev, [report._id]: thumb }));
+          })
+          .catch(() => {})
+      );
+    });
+    // Fire all, but we don't need to await
+    Promise.allSettled(tasks);
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, moderationView, pendingReports, rejectedReports]);
 
   useEffect(() => {
     if (activeTab === 'users') {
@@ -2160,7 +2192,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Moderation filters & controls */}
-              <div className="filters" style={{ marginBottom: 16 }}>
+              <div className="moderation-filters">
                 <input
                   type="text"
                   className="filter-input"
@@ -2347,7 +2379,7 @@ const AdminDashboard = () => {
 
                                 <div className="moderation-media">
                                   {(report.media || []).slice(0,1).map((media, index) => (
-                                      <div key={index} className="media-thumbnail">
+                                    <div key={index} className="media-thumbnail">
                                       {media.type === 'image' ? (
                                         <img
                                           src={media.url}
@@ -2357,10 +2389,19 @@ const AdminDashboard = () => {
                                           onClick={() => handleImageClick(media.url, `${report.location?.name} - Image ${index + 1}`)}
                                         />
                                       ) : (
-                                        <div className="video-placeholder">
-                                          <RiVideoLine />
-                                          <span>Video</span>
-                                        </div>
+                                        moderationVideoThumbs[report._id] ? (
+                                          <img
+                                            src={moderationVideoThumbs[report._id]}
+                                            alt={`Report ${index + 1} Video Thumbnail`}
+                                            loading="lazy"
+                                            decoding="async"
+                                          />
+                                        ) : (
+                                          <div className="video-placeholder">
+                                            <RiVideoLine />
+                                            <span>Video</span>
+                                          </div>
+                                        )
                                       )}
                                     </div>
                                   ))}
@@ -2522,7 +2563,7 @@ const AdminDashboard = () => {
 
                                 <div className="moderation-media">
                                   {(report.media || []).slice(0,1).map((media, index) => (
-                                      <div key={index} className="media-thumbnail">
+                                    <div key={index} className="media-thumbnail">
                                       {media.type === 'image' ? (
                                         <img
                                           src={media.url}
@@ -2532,10 +2573,19 @@ const AdminDashboard = () => {
                                           onClick={() => handleImageClick(media.url, `${report.location?.name} - Image ${index + 1}`)}
                                         />
                                       ) : (
-                                        <div className="video-placeholder">
-                                          <RiVideoLine />
-                                          <span>Video</span>
-                                        </div>
+                                        moderationVideoThumbs[report._id] ? (
+                                          <img
+                                            src={moderationVideoThumbs[report._id]}
+                                            alt={`Report ${index + 1} Video Thumbnail`}
+                                            loading="lazy"
+                                            decoding="async"
+                                          />
+                                        ) : (
+                                          <div className="video-placeholder">
+                                            <RiVideoLine />
+                                            <span>Video</span>
+                                          </div>
+                                        )
                                       )}
                                     </div>
                                   ))}
