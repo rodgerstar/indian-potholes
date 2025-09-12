@@ -3,8 +3,16 @@ import multer from 'multer';
 import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 import sharp from 'sharp';
+import ffmpeg from 'fluent-ffmpeg';
+import ffmpegPath from '@ffmpeg-installer/ffmpeg';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 dotenv.config();
+
+// Configure FFmpeg path for video processing
+ffmpeg.setFfmpegPath(ffmpegPath.path);
 
 // Validate R2 configuration
 const validateR2Config = () => {
@@ -283,6 +291,82 @@ const validateUploadedFile = (req, res, next) => {
   next();
 };
 
+// Function to convert video to MP4
+const convertVideoToMp4 = async (buffer, originalExt) => {
+  return new Promise((resolve, reject) => {
+    try {
+      // Create temporary input file path
+      const inputPath = path.join(os.tmpdir(), `input-${Date.now()}.${originalExt}`);
+      const outputPath = path.join(os.tmpdir(), `output-${Date.now()}.mp4`);
+
+      // Write buffer to temporary file
+      fs.writeFileSync(inputPath, buffer);
+
+      // Configure FFmpeg conversion
+      const command = ffmpeg(inputPath)
+        .inputOptions(['-f', getVideoFormat(originalExt)]) // Specify input format
+        .outputOptions([
+          '-c:v', 'libx264',           // H.264 video codec
+          '-preset', 'medium',         // Encoding preset (balanced speed/quality)
+          '-crf', '23',                // Quality setting (lower = better quality)
+          '-c:a', 'aac',               // AAC audio codec
+          '-b:a', '128k',              // Audio bitrate
+          '-movflags', '+faststart',   // Enable fast start for web playback
+          '-y'                        // Overwrite output file
+        ])
+        .output(outputPath)
+        .on('end', () => {
+          try {
+            // Read converted file
+            const outputBuffer = fs.readFileSync(outputPath);
+
+            // Clean up temporary files
+            try {
+              fs.unlinkSync(inputPath);
+              fs.unlinkSync(outputPath);
+            } catch (cleanupError) {
+              console.warn('Failed to clean up temp files:', cleanupError.message);
+            }
+
+            resolve(outputBuffer);
+          } catch (readError) {
+            reject(new Error(`Failed to read converted video: ${readError.message}`));
+          }
+        })
+        .on('error', (err) => {
+          // Clean up temporary files on error
+          try {
+            if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
+            if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
+          } catch (cleanupError) {
+            console.warn('Failed to clean up temp files:', cleanupError.message);
+          }
+          reject(new Error(`Video conversion failed: ${err.message}`));
+        });
+
+      // Execute conversion
+      command.run();
+    } catch (error) {
+      reject(new Error(`Video conversion setup failed: ${error.message}`));
+    }
+  });
+};
+
+// Helper function to get FFmpeg input format
+const getVideoFormat = (ext) => {
+  const formatMap = {
+    'mp4': 'mp4',
+    'avi': 'avi',
+    'mov': 'mov',
+    'webm': 'webm',
+    'mkv': 'matroska',
+    '3gp': '3gp',
+    'm4v': 'mp4',
+    'hevc': 'hevc'
+  };
+  return formatMap[ext.toLowerCase()] || 'mp4';
+};
+
 // Function to upload file to R2 with retry logic
 const uploadToR2 = async (file, folder = 'pothole-reports', retries = 3) => {
   // Validate file object
@@ -389,6 +473,42 @@ const uploadToR2 = async (file, folder = 'pothole-reports', retries = 3) => {
         console.warn('Image optimization failed, using original file:', optError.message);
       }
 
+      // Process videos (convert to MP4)
+      try {
+        const videoExts = ['mp4','avi','mov','webm','mkv','3gp','3gpp','m4v','hevc'];
+        const isVideo = contentType.startsWith('video/') || videoExts.includes(originalExt);
+        const isMp4 = originalExt === 'mp4' || contentType === 'video/mp4';
+        if (isVideo && file.buffer.length > 0) {
+          if (isMp4) {
+            // Keep original MP4 without re-encoding; normalize contentType
+            if (contentType !== 'video/mp4') contentType = 'video/mp4';
+            finalExt = 'mp4';
+            optimizationMeta = { ...optimizationMeta, 'video-conversion': 'skipped-original-mp4' };
+          } else {
+            console.log('Processing video file:', originalExt, '-> mp4');
+            const videoBuffer = await convertVideoToMp4(file.buffer, originalExt);
+            if (videoBuffer && videoBuffer.length > 0) {
+              uploadBody = videoBuffer;
+              contentType = 'video/mp4';
+              finalExt = 'mp4';
+              optimizationMeta = {
+                'optimized': 'true',
+                'original-format': originalExt,
+                'converted-to': 'mp4',
+                'original-size': file.buffer.length.toString(),
+                'new-size': videoBuffer.length.toString(),
+                'video-conversion': 'true'
+              };
+              console.log('Video conversion successful:', file.buffer.length, '->', videoBuffer.length, 'bytes');
+            } else {
+              console.warn('Video conversion failed, using original file');
+            }
+          }
+        }
+      } catch (videoError) {
+        console.warn('Video processing failed, using original file:', videoError.message);
+      }
+
       const fileName = `${folder}/${timestamp}-${uniqueId}.${finalExt}`;
 
       // Upload to R2
@@ -484,13 +604,15 @@ const cleanupFileBuffer = (file) => {
   }
 };
 
-export { 
-  s3Client, 
-  upload, 
-  uploadToR2, 
-  deleteFromR2, 
+export {
+  s3Client,
+  upload,
+  uploadToR2,
+  deleteFromR2,
   fileExistsInR2,
   cleanupFileBuffer,
   validateUploadedFile,
-  validateR2Config
-}; 
+  validateR2Config,
+  convertVideoToMp4,
+  getVideoFormat
+};
