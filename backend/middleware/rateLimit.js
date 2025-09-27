@@ -156,7 +156,7 @@ export const userLimiter = rateLimit({
 // Strict limiter for sensitive operations
 export const sensitiveOperationLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 50, // limit each user to 50 sensitive operations per hour
+  max: 500, // Changed from 50 to 500
   message: {
     success: false,
     message: 'Too many sensitive operations, please try again later.'
@@ -170,6 +170,28 @@ export const sensitiveOperationLimiter = rateLimit({
     res.status(429).json({
       success: false,
       message: 'Too many sensitive operations, please try again later.',
+      retryAfter: Math.ceil(60 / 60) // hours
+    });
+  }
+}); 
+
+// Report management limiter with higher limits
+export const reportManagementLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 500, // limit each user to 500 report management operations per hour
+  message: {
+    success: false,
+    message: 'Too many report management operations, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false,
+  skipFailedRequests: false,
+  keyGenerator: createKeyGenerator(true), // Include user ID
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message: 'Too many report management operations, please try again later.',
       retryAfter: Math.ceil(60 / 60) // hours
     });
   }
