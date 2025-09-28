@@ -185,7 +185,8 @@ class ConstituencyAssignmentService {
     try {
       const unassignedPotholes = await Pothole.find({
         constituencyStatus: 'pending_manual',
-        state: 'Pending Assignment'
+        state: 'Pending Assignment',
+        approvalStatus: { $ne: 'rejected' }
       }).select('_id location');
 
       console.log(`Processing ${unassignedPotholes.length} unassigned potholes`);
@@ -208,6 +209,11 @@ class ConstituencyAssignmentService {
   async getAssignmentStats() {
     try {
       const stats = await Pothole.aggregate([
+        {
+          $match: {
+            approvalStatus: { $ne: 'rejected' }
+          }
+        },
         {
           $group: {
             _id: '$constituencyStatus',

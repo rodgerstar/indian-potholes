@@ -1634,7 +1634,8 @@ router.get('/stats', apiLimiter, async (req, res) => {
 router.get('/assignments/pending', apiLimiter, async (req, res) => {
   try {
     const pendingPotholes = await Pothole.find({
-      constituencyStatus: 'pending_manual'
+      constituencyStatus: 'pending_manual',
+      approvalStatus: { $ne: 'rejected' }
     })
     .select('reportId location createdAt state constituency parliamentaryConstituency')
     .sort({ createdAt: -1 })
